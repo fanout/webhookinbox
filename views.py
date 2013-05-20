@@ -44,7 +44,7 @@ def inbox(req, alloc_id):
 			item['query'] = query
 
 		pub.publish_http_stream_async('inbox-stream-' + alloc_id, json.dumps(item) + '\n')
-		return HttpResponse('Refreshed\n')
+		return HttpResponse('Ok\n')
 	elif req.method == 'DELETE':
 		try:
 			redis_ops.inbox_delete(alloc_id)
@@ -65,6 +65,8 @@ def refresh(req, alloc_id):
 			redis_ops.inbox_refresh(alloc_id, ttl)
 		except redis_ops.ObjectDoesNotExist:
 			return HttpResponseNotFound('Not Found\n')
+
+		return HttpResponse('Refreshed\n')
 	else:
 		return HttpResponseNotAllowed(['POST'])
 
