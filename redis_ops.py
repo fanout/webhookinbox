@@ -12,6 +12,9 @@ g_redis_host = 'localhost'
 g_redis_port = 6379
 g_redis = None
 
+class ObjectDoesNotExist(Exception):
+	pass
+
 def set_config(prefix, host, port):
 	global g_prefix
 	global g_redis_host
@@ -71,6 +74,9 @@ def inbox_delete(id):
 			try:
 				pipe.watch(key)
 				pipe.watch(exp_key)
+				val_json = pipe.get(key)
+				if val_json is None:
+					raise ObjectDoesNotExist('No such inbox: %s' + id)
 				pipe.multi()
 				pipe.delete(key)
 				pipe.zrem(exp_key, id)
@@ -78,6 +84,14 @@ def inbox_delete(id):
 				break
 			except redis.WatchError:
 				continue
+
+def inbox_get(id):
+	r = get_redis()
+	key = g_prefix + 'inbox-' + id
+	val_json = r.get(key)
+	if val_json is None:
+		raise ObjectDoesNotExist('No such inbox: %s' + id)
+	return json.loads(val_json)
 
 def inbox_refresh(id, newttl=None):
 	assert(not newttl or isinstance(newttl, int))
@@ -92,7 +106,7 @@ def inbox_refresh(id, newttl=None):
 				pipe.watch(exp_key)
 				val_json = pipe.get(key)
 				if val_json is None:
-					raise ValueError('no such inbox')
+					raise ObjectDoesNotExist('No such inbox: %s' + id)
 				val = json.loads(val_json)
 				if newttl is not None:
 					val['ttl'] = newttl
