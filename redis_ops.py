@@ -15,6 +15,9 @@ g_redis = None
 class ObjectDoesNotExist(Exception):
 	pass
 
+class InvalidId(Exception):
+	pass
+
 def set_config(prefix, host, port):
 	global g_prefix
 	global g_redis_host
@@ -35,6 +38,11 @@ def get_redis():
 
 def gen_id():
 	return ''.join(random.choice(string.letters + string.digits) for n in xrange(8))
+
+def validate_id(id):
+	for c in id:
+		if c not in string.letters and c not in string.digits:
+			raise InvalidId('id contains invalid character: %s' % c)
 
 def timestamp_utcnow():
 	return calendar.timegm(datetime.utcnow().utctimetuple())
@@ -66,26 +74,28 @@ def inbox_create(ttl):
 				continue
 
 def inbox_delete(id):
+	validate_id(id)
 	r = get_redis()
 	key = g_prefix + 'inbox-' + id
 	exp_key = g_prefix + 'exp'
+	items_key = g_prefix + 'inbox-items-' + id
 	while True:
 		with r.pipeline() as pipe:
 			try:
 				pipe.watch(key)
-				pipe.watch(exp_key)
-				val_json = pipe.get(key)
-				if val_json is None:
+				if not pipe.exists(key):
 					raise ObjectDoesNotExist('No such inbox: %s' + id)
 				pipe.multi()
 				pipe.delete(key)
 				pipe.zrem(exp_key, id)
+				pipe.delete(items_key)
 				pipe.execute()
 				break
 			except redis.WatchError:
 				continue
 
 def inbox_get(id):
+	validate_id(id)
 	r = get_redis()
 	key = g_prefix + 'inbox-' + id
 	val_json = r.get(key)
@@ -95,6 +105,7 @@ def inbox_get(id):
 
 def inbox_refresh(id, newttl=None):
 	assert(not newttl or isinstance(newttl, int))
+	validate_id(id)
 	r = get_redis()
 	key = g_prefix + 'inbox-' + id
 	exp_key = g_prefix + 'exp'
@@ -158,3 +169,84 @@ def inbox_take_expired():
 			except redis.WatchError:
 				continue
 	return out
+
+# return (item id, prev_id)
+def inbox_append_item(id, item):
+	validate_id(id)
+	r = get_redis()
+	key = g_prefix + 'inbox-' + id
+	items_key = g_prefix + 'inbox-items-' + id
+	while True:
+		with r.pipeline() as pipe:
+			try:
+				pipe.watch(key)
+				pipe.watch(items_key)
+				if not pipe.exists(key):
+					raise ObjectDoesNotExist('No such inbox: %s' + id)
+				end_pos = pipe.llen(items_key)
+				pipe.multi()
+				pipe.rpush(items_key, json.dumps(item))
+				pipe.execute()
+				prev_pos = end_pos - 1
+				if prev_pos != -1:
+					return (str(end_pos), str(prev_pos))
+				else:
+					return (str(end_pos), '')
+			except redis.WatchError:
+				continue
+
+# return (list, last_id)
+def inbox_get_items_after(id, item_id):
+	validate_id(id)
+	r = get_redis()
+	if len(item_id) > 0:
+		item_pos = int(item_id)
+	else:
+		item_pos = -1
+	key = g_prefix + 'inbox-' + id
+	items_key = g_prefix + 'inbox-items-' + id
+	while True:
+		with r.pipeline() as pipe:
+			try:
+				pipe.watch(key)
+				pipe.watch(items_key)
+				if not pipe.exists(key):
+					raise ObjectDoesNotExist('No such inbox: %s' + id)
+				count = pipe.llen(items_key)
+				if count == 0:
+					return (list(), '')
+				last_pos = count - 1
+				if item_pos >= last_pos:
+					return (list(), str(last_pos))
+				pipe.multi()
+				pipe.lrange(items_key, item_pos + 1, last_pos)
+				ret = pipe.execute()
+				items_json = ret[0]
+				items = list()
+				for i in items_json:
+					items.append(json.loads(i))
+				return (items, str(last_pos))
+			except redis.WatchError:
+				continue
+
+def inbox_get_last_id(id):
+	validate_id(id)
+	r = get_redis()
+	key = g_prefix + 'inbox-' + id
+	items_key = g_prefix + 'inbox-items-' + id
+	while True:
+		with r.pipeline() as pipe:
+			try:
+				pipe.watch(key)
+				pipe.watch(items_key)
+				if not pipe.exists(key):
+					raise ObjectDoesNotExist('No such inbox: %s' + id)
+				count = pipe.llen(items_key)
+				if count == 0:
+					return ''
+				last_pos = count - 1
+				pipe.multi()
+				pipe.execute()
+				return str(last_pos)
+			except redis.WatchError:
+				continue
