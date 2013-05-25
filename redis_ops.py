@@ -229,8 +229,10 @@ def inbox_get_items_after(id, item_id, item_max):
 				ret = pipe.execute()
 				items_json = ret[0]
 				items = list()
-				for i in items_json:
-					items.append(json.loads(i))
+				for n, i in enumerate(items_json):
+					item = json.loads(i)
+					item['id'] = str(start_pos + n)
+					items.append(item)
 				return (items, str(end_pos))
 			except redis.WatchError:
 				continue
@@ -275,8 +277,10 @@ def inbox_get_items_before(id, item_id, item_max):
 				ret = pipe.execute()
 				items_json = ret[0]
 				items = list()
-				for i in items_json:
-					items.insert(0, json.loads(i))
+				for n, i in enumerate(items_json):
+					item = json.loads(i)
+					item['id'] = str(start_pos + n)
+					items.insert(0, item)
 				return (items, str(start_pos), start_pos == 0)
 			except redis.WatchError:
 				continue

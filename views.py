@@ -124,6 +124,8 @@ def inbox(req, alloc_id):
 
 		item_id, prev_id = redis_ops.inbox_append_item(alloc_id, item)
 
+		item['id'] = item_id
+
 		hr = dict()
 		hr['last_cursor'] = item_id
 		hr['items'] = [item]
