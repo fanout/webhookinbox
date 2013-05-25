@@ -162,30 +162,69 @@ def items(req, alloc_id):
 		except redis_ops.ObjectDoesNotExist:
 			return HttpResponseNotFound('Not Found\n')
 
+		order = req.GET.get('order')
+		if order and order not in ('created', '-created'):
+			return HttpResponseBadRequest('Bad Request: Invalid order value\n')
+
+		if not order:
+			order = 'created'
+
+		imax = req.GET.get('max')
+		if imax:
+			try:
+				imax = int(imax)
+				if imax < 1:
+					raise ValueError('max too small')
+			except:
+				return HttpResponseBadRequest('Bad Request: Invalid max value\n')
+
+		if not imax or imax > 50:
+			imax = 50
+
 		since = req.GET.get('since')
+		since_id = None
+		since_cursor = None
 		if since:
-			if not since.startswith('cursor:'):
+			if since.startswith('id:'):
+				since_id = since[3:]
+			elif since.startswith('cursor:'):
+				since_cursor = since[7:]
+			else:
 				return HttpResponseBadRequest('Bad Request: Invalid since value\n')
 
-			item_id = since[7:]
+		# at the moment, cursor is identical to id
+		item_id = None
+		if since_id:
+			item_id = since_id
+		elif since_cursor:
+			item_id = since_cursor
 
-			items, last_id = redis_ops.inbox_get_items_after(alloc_id, item_id)
-			if len(items) > 0:
-				out = dict()
+		if order == 'created':
+			if item_id:
+				items, last_id = redis_ops.inbox_get_items_after(alloc_id, item_id, imax)
+				if len(items) > 0:
+					out = dict()
+					out['last_cursor'] = last_id
+					out['items'] = items
+					return HttpResponse(json.dumps(out) + '\n')
+			else:
+				last_id = redis_ops.inbox_get_newest_id(alloc_id)
+
+			channel = gripcontrol.Channel('inbox-' + alloc_id, last_id)
+			hr = dict()
+			hr['last_cursor'] = last_id
+			hr['items'] = list()
+			hr_json = json.dumps(hr) + '\n'
+			timeout_response = gripcontrol.Response(body=hr_json)
+			instruct = gripcontrol.create_hold_response(channel, timeout_response)
+			return HttpResponse(instruct, content_type='application/grip-instruct')
+		else: # -created
+			items, last_id, eof = redis_ops.inbox_get_items_before(alloc_id, item_id, imax)
+			out = dict()
+			if not eof and last_id:
 				out['last_cursor'] = last_id
-				out['items'] = items
-				return HttpResponse(json.dumps(out) + '\n')
-		else:
-			last_id = redis_ops.inbox_get_last_id(alloc_id)
-
-		channel = gripcontrol.Channel('inbox-' + alloc_id, last_id)
-		hr = dict()
-		hr['last_cursor'] = last_id
-		hr['items'] = list()
-		hr_json = json.dumps(hr) + '\n'
-		timeout_response = gripcontrol.Response(body=hr_json)
-		instruct = gripcontrol.create_hold_response(channel, timeout_response)
-		return HttpResponse(instruct, content_type='application/grip-instruct')
+			out['items'] = items
+			return HttpResponse(json.dumps(out) + '\n')
 	else:
 		return HttpResponseNotAllowed(['GET'])
 

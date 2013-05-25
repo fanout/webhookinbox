@@ -196,11 +196,54 @@ def inbox_append_item(id, item):
 				continue
 
 # return (list, last_id)
-def inbox_get_items_after(id, item_id):
+def inbox_get_items_after(id, item_id, item_max):
 	validate_id(id)
+	assert(not item_max or item_max > 0)
 	r = get_redis()
-	if len(item_id) > 0:
-		item_pos = int(item_id)
+	if item_id is not None and len(item_id) > 0:
+		start_pos = int(item_id) + 1
+	else:
+		start_pos = 0
+	key = g_prefix + 'inbox-' + id
+	items_key = g_prefix + 'inbox-items-' + id
+	while True:
+		with r.pipeline() as pipe:
+			try:
+				pipe.watch(key)
+				pipe.watch(items_key)
+				if not pipe.exists(key):
+					raise ObjectDoesNotExist('No such inbox: %s' + id)
+				count = pipe.llen(items_key)
+				if count == 0:
+					return (list(), '')
+				if item_max:
+					end_pos = start_pos + item_max - 1
+					if end_pos > count - 1:
+						end_pos = count - 1
+				else:
+					end_pos = count - 1
+				if start_pos > end_pos:
+					return (list(), str(end_pos))
+				pipe.multi()
+				pipe.lrange(items_key, start_pos, end_pos)
+				ret = pipe.execute()
+				items_json = ret[0]
+				items = list()
+				for i in items_json:
+					items.append(json.loads(i))
+				return (items, str(end_pos))
+			except redis.WatchError:
+				continue
+
+# return (list, last_id, eof)
+def inbox_get_items_before(id, item_id, item_max):
+	validate_id(id)
+	assert(not item_max or item_max > 0)
+	r = get_redis()
+	if item_id is not None and len(item_id) > 0:
+		item_pos = int(item_id) - 1
+		if item_pos < 0:
+			return (list(), '', True)
 	else:
 		item_pos = -1
 	key = g_prefix + 'inbox-' + id
@@ -214,22 +257,31 @@ def inbox_get_items_after(id, item_id):
 					raise ObjectDoesNotExist('No such inbox: %s' + id)
 				count = pipe.llen(items_key)
 				if count == 0:
-					return (list(), '')
-				last_pos = count - 1
-				if item_pos >= last_pos:
-					return (list(), str(last_pos))
+					return (list(), '', True)
+				if item_pos != -1:
+					end_pos = item_pos
+				else:
+					end_pos = count - 1
+				if item_max:
+					start_pos = end_pos - (item_max - 1)
+					if start_pos < 0:
+						start_pos = 0
+				else:
+					start_pos = 0
+				if start_pos > end_pos:
+					return (list(), str(start_pos), start_pos == 0)
 				pipe.multi()
-				pipe.lrange(items_key, item_pos + 1, last_pos)
+				pipe.lrange(items_key, start_pos, end_pos)
 				ret = pipe.execute()
 				items_json = ret[0]
 				items = list()
 				for i in items_json:
-					items.append(json.loads(i))
-				return (items, str(last_pos))
+					items.insert(0, json.loads(i))
+				return (items, str(start_pos), start_pos == 0)
 			except redis.WatchError:
 				continue
 
-def inbox_get_last_id(id):
+def inbox_get_newest_id(id):
 	validate_id(id)
 	r = get_redis()
 	key = g_prefix + 'inbox-' + id
