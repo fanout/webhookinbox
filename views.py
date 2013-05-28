@@ -1,4 +1,5 @@
 from base64 import b64encode
+import datetime
 import json
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseNotAllowed
 import pubcontrol
@@ -76,7 +77,13 @@ def _req_to_item(req):
 		except:
 			# else, store as binary
 			item['body-bin'] = b64encode(req.raw_post_data)
-
+	forwardedfor = req.META.get('HTTP_X_FORWARDED_FOR')
+	if forwardedfor:
+		ip_address = forwardedfor.split(',')[-1].strip()
+	else:
+		ip_address = req.META['REMOTE_ADDR']
+	item['ip_address'] = ip_address
+	item['created'] = datetime.datetime.utcnow.isoformat()
 	return item
 
 def root(req):
