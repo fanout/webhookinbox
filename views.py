@@ -83,7 +83,7 @@ def _req_to_item(req):
 	else:
 		ip_address = req.META['REMOTE_ADDR']
 	item['ip_address'] = ip_address
-	item['created'] = datetime.datetime.utcnow.isoformat()
+	item['created'] = datetime.datetime.utcnow().isoformat()
 	return item
 
 def root(req):
