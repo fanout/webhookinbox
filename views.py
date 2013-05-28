@@ -209,15 +209,12 @@ def items(req, alloc_id):
 			item_id = since_cursor
 
 		if order == 'created':
-			if item_id:
-				items, last_id = redis_ops.inbox_get_items_after(alloc_id, item_id, imax)
-				if len(items) > 0:
-					out = dict()
-					out['last_cursor'] = last_id
-					out['items'] = items
-					return HttpResponse(json.dumps(out) + '\n')
-			else:
-				last_id = redis_ops.inbox_get_newest_id(alloc_id)
+			items, last_id = redis_ops.inbox_get_items_after(alloc_id, item_id, imax)
+			if len(items) > 0:
+				out = dict()
+				out['last_cursor'] = last_id
+				out['items'] = items
+				return HttpResponse(json.dumps(out) + '\n')
 
 			channel = gripcontrol.Channel('inbox-' + alloc_id, last_id)
 			hr = dict()
