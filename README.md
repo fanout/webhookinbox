@@ -12,6 +12,8 @@ WebhookInbox is a server and website that receives HTTP requests from external s
 
 There is an instance of WebHookInbox running at http://webhookinbox.com/ for anyone to use.
 
+This project was heavily inspired by RequestBin: http://requestb.in/
+
 License
 -------
 
