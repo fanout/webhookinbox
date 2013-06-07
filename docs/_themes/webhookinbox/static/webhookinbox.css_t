@@ -1,0 +1,275 @@
+/*
+vim: ft=css
+*/
+
+body {
+    font-family: open-sans, "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    margin: 0 auto;
+    padding: 0;
+    line-height: 1.75;
+    font-size: 16px;
+}
+
+h1, h2 {
+    font-weight: 300;
+}
+
+h3, h4, h5, h6 {
+    font-weight: 700;
+}
+
+a {
+    color: #00a99d;
+    text-decoration: none;
+    border-bottom: 1px dotted #aaa;
+}
+
+a:hover {
+    color: #008379;
+    border-bottom: 1px solid #00aa9d;
+}
+
+a.headerlink {
+    visibility: hidden;
+    padding-left: 5px;
+    text-decoration: none;
+}
+
+h1:hover a.headerlink,
+h2:hover a.headerlink,
+h3:hover a.headerlink,
+h4:hover a.headerlink,
+h5:hover a.headerlink,
+h6:hover a.headerlink {
+    visibility: visible;
+}
+
+h1 a,
+h2 a,
+h3 a,
+h4 a,
+h5 a,
+h6 a {
+    text-decoration: none;
+    border-bottom: none;
+}
+
+h1 a:hover,
+h2 a:hover,
+h3 a:hover,
+h4 a:hover,
+h5 a:hover,
+h6 a:hover {
+    color: #008379;
+}
+
+div.content {
+    width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+div.content img {
+    display: block;
+    margin: 0px auto;
+}
+
+div.section h2 {
+    border-bottom: 1px solid #d0d0d0;
+    overflow: auto;
+    margin-top: 40px;
+}
+
+div.section h2 + img {
+    margin-top: 40px;
+}
+
+div.section img + ul {
+    margin-top: 40px;
+}
+
+pre, span.pre {
+    font-family: droid-sans-mono, "Consolas", "Menlo", "Monaco";
+    font-size: 14px;
+}
+
+span.pre {
+    background: #e4f9f7;
+    color: #1a6660;
+    text-shadow: #ffffff 0 1px 1px;
+    border-radius: 4px 4px;
+    -moz-border-radius: 4px 4px;
+    -o-border-radius: 4px 4px;
+    -webkit-border-radius: 4px 4px;
+    padding: 2px 4px;
+}
+
+div.highlight-python,
+.box {
+    text-shadow: #ffffff 0 1px 1px;
+    background: #f4f4f4;
+    padding: 5px 20px;
+    border-radius: 4px 4px;
+    -moz-border-radius: 4px 4px;
+    -o-border-radius: 4px 4px;
+    -webkit-border-radius: 4px 4px;
+    box-shadow: inset 0 1px 2px 1px #ddd, 0 1px white;
+    -moz-box-shadow: inset 0 1px 2px 1px #ddd, 0 1px white;
+    -o-box-shadow: inset 0 1px 2px 1px #ddd, 0 1px white;
+    -webkit-box-shadow: inset 0 1px 2px 1px #ddd, 0 1px white;
+}
+
+div.highlight-python div.highlight {
+    /* XXX: Fix pygments theme instead? */
+    background: none;
+}
+
+.line-block {
+    display: block;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.line-block .line-block {
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 1.5em;
+}
+
+ul {
+    list-style-type: square;
+    padding-left: 1.0em;
+    margin-left: 1.0em;
+}
+
+p {
+    margin: 1.5em 0px;
+}
+
+p.alert,
+p.alert a {
+    color: #fc392f;
+}
+
+/* nav */
+
+div.nav {
+    line-height: 17px;
+    font-size: 12px;
+    text-align: right;
+    font-weight: 700;
+    font-style: normal;
+    padding: 10px 20px;
+    position: relative;
+    background: url("nav_bg.png") #aaabad;
+    max-height: 36px;
+    border-bottom: 1px solid #f6f6f6;
+    text-shadow: #6d6e70 0 -1px 0px;
+}
+
+div.nav a {
+    border: 0px;
+    color: #dfdfdf;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+div.nav a:hover {
+    color: #efefef;
+    border-bottom: none;
+}
+
+div.nav a.username {
+    text-transform: none;
+    letter-spacing: 0px;
+}
+
+div.nav a.loggedin {
+    color: #b9eeea;
+}
+
+div.nav a.loggedin:hover {
+    color: #e0fbf9;
+}
+
+div.nav span.divider {
+    width: 0px;
+    border-left: 1px solid #ddd;
+}
+
+div.nav a, div.nav span {
+    margin-left: 20px;
+}
+div.nav img.logo {
+    position: absolute;
+    left: 20px;
+    top: 6px;
+}
+
+div.header {
+    padding: 30px 0px 40px;
+    background: url("highlight.png"), url("header_bg.png") #d7d7d7;
+    background-repeat: no-repeat, repeat;
+    background-position: 50% 0%, 0% 0%;
+    background-size: 1900px 400px, 400px 400px;
+}
+
+div.main {
+    /* background: url("main_top.png") repeat-x top white; */
+    padding-top: 25px;
+}
+
+div.footer {
+    margin-top: 150px;
+    background: url("footer_bg.jpg") #02a99d repeat-x top;
+    padding: 30px 0 100px;
+    font-family: open-sans, "Lucida Grande", "Arial", sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    font-style: normal;
+    padding: 30px 0 100px;
+    color: #b8e0dc;
+    text-shadow: #467a75 0 -1px 0;
+    text-align: center;
+}
+
+div.footer a {
+    color: white;
+}
+
+#toc {
+    float: right;
+    width: 250px;
+    font-size: 14px;
+    margin-top: 15px;
+    margin-left: 75px;
+    margin-bottom: 25px;
+
+    line-height: 1.25;
+
+    text-shadow: white 0 1px 0;
+    background: #f4f4f4;
+    padding: 0px 20px;
+    border-radius: 4px 4px;
+    -moz-border-radius: 4px 4px;
+    -o-border-radius: 4px 4px;
+    -webkit-border-radius: 4px 4px;
+    box-shadow: inset 0 1px 2px 1px #ddd, 0 1px white;
+    -moz-box-shadow: inset 0 1px 2px 1px #ddd, 0 1px white;
+    -o-box-shadow: inset 0 1px 2px 1px #ddd, 0 1px white;
+    -webkit-box-shadow: inset 0 1px 2px 1px #ddd, 0 1px white;
+}
+
+#toc ul {
+    padding-left: 0.25em;
+}
+
+#toc li {
+    margin: 7px 0px;
+}
+
+#toc h3 a {
+    color: black;
+}
