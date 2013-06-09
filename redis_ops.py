@@ -370,6 +370,7 @@ class RedisOps(object):
 		items_baseindex_key = self.prefix + 'inbox-items-baseindex-' + id
 		items_time_key = self.prefix + 'inbox-items-time-' + id
 		now = RedisOps._timestamp_utcnow()
+		total = 0
 		while True:
 			with r.pipeline() as pipe:
 				try:
@@ -414,6 +415,9 @@ class RedisOps(object):
 					pipe.zrem(items_time_key, item_id)
 					pipe.execute()
 
+					total += 1
+
 					# note: don't break on success
 				except redis.WatchError:
 					continue
+		return total
