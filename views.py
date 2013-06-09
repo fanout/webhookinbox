@@ -121,36 +121,52 @@ def _req_to_item(req):
 def root(req):
 	return HttpResponseNotFound('Not Found\n')
 
-def allocate(req):
+def create(req):
 	if req.method == 'POST':
-		host = req.META['HTTP_HOST']
+		host = req.META.get('HTTP_HOST')
+		if not host:
+			return HttpResponseBadRequest('Bad Request: No \'Host\' header\n')
+
 		ttl = req.POST.get('ttl')
 		if ttl is not None:
 			ttl = int(ttl)
 		if ttl is None:
 			ttl = 60
-		alloc_id = db.inbox_create(ttl)
+
+		try:
+			inbox_id = db.inbox_create(ttl)
+		except:
+			return HttpResponse('Service Unavailable\n', status=503)
+
 		out = dict()
-		out['id'] = alloc_id
-		out['target'] = 'http://' + host + '/a/' + alloc_id + '/'
+		out['id'] = inbox_id
+		out['target'] = 'http://' + host + '/i/' + inbox_id + '/'
 		out['ttl'] = ttl
-		return HttpResponse(json.dumps(out) + '\n')
+		return HttpResponse(json.dumps(out) + '\n', content_type='application/json')
 	else:
 		return HttpResponseNotAllowed(['POST'])
 
-def inbox(req, alloc_id):
+def inbox(req, inbox_id):
 	if req.method == 'DELETE':
 		try:
-			db.inbox_delete(alloc_id)
+			db.inbox_delete(inbox_id)
+		except redis_ops.InvalidId:
+			return HttpResponseBadRequest('Bad Request: Invalid id\n')
 		except redis_ops.ObjectDoesNotExist:
 			return HttpResponseNotFound('Not Found\n')
+		except:
+			return HttpResponse('Service Unavailable\n', status=503)
 
 		return HttpResponse('Deleted\n')
 	else:
 		try:
-			db.inbox_get(alloc_id)
+			db.inbox_get(inbox_id)
+		except redis_ops.InvalidId:
+			return HttpResponseBadRequest('Bad Request: Invalid id\n')
 		except redis_ops.ObjectDoesNotExist:
 			return HttpResponseNotFound('Not Found\n')
+		except:
+			return HttpResponse('Service Unavailable\n', status=503)
 
 		# pubsubhubbub verify request?
 		hub_challenge = req.GET.get('hub.challenge')
@@ -161,45 +177,62 @@ def inbox(req, alloc_id):
 		else:
 			item['type'] = 'normal'
 
-		item_id, prev_id = db.inbox_append_item(alloc_id, item)
-
-		db.inbox_clear_expired_items(alloc_id)
+		try:
+			item_id, prev_id = db.inbox_append_item(inbox_id, item)
+			db.inbox_clear_expired_items(inbox_id)
+		except redis_ops.InvalidId:
+			return HttpResponseBadRequest('Bad Request: Invalid id\n')
+		except redis_ops.ObjectDoesNotExist:
+			return HttpResponseNotFound('Not Found\n')
+		except:
+			return HttpResponse('Service Unavailable\n', status=503)
 
 		item['id'] = item_id
 
+		hr_headers = dict()
+		hr_headers['Content-Type'] = 'application/json'
 		hr = dict()
 		hr['last_cursor'] = item_id
 		hr['items'] = [item]
-		hr_json = json.dumps(hr) + '\n'
-		hs_json = json.dumps(item) + '\n'
-		pub.publish(grip_prefix + 'inbox-' + alloc_id, item_id, prev_id, None, hr_json, hs_json)
+		hr_body = json.dumps(hr) + '\n'
+		hs_body = json.dumps(item) + '\n'
+
+		pub.publish(grip_prefix + 'inbox-' + inbox_id, item_id, prev_id, hr_headers, hr_body, hs_body)
 
 		if hub_challenge:
 			return HttpResponse(hub_challenge)
 		else:
 			return HttpResponse('Ok\n')
 
-def refresh(req, alloc_id):
+def refresh(req, inbox_id):
 	if req.method == 'POST':
 		ttl = req.POST.get('ttl')
 		if ttl is not None:
 			ttl = int(ttl)
 
 		try:
-			db.inbox_refresh(alloc_id, ttl)
+			db.inbox_refresh(inbox_id, ttl)
+		except redis_ops.InvalidId:
+			return HttpResponseBadRequest('Bad Request: Invalid id\n')
 		except redis_ops.ObjectDoesNotExist:
 			return HttpResponseNotFound('Not Found\n')
+		except:
+			return HttpResponse('Service Unavailable\n', status=503)
 
 		return HttpResponse('Refreshed\n')
 	else:
 		return HttpResponseNotAllowed(['POST'])
 
-def items(req, alloc_id):
+def items(req, inbox_id):
 	if req.method == 'GET':
 		try:
-			db.inbox_refresh(alloc_id)
+			db.inbox_refresh(inbox_id)
+		except redis_ops.InvalidId:
+			return HttpResponseBadRequest('Bad Request: Invalid id\n')
 		except redis_ops.ObjectDoesNotExist:
 			return HttpResponseNotFound('Not Found\n')
+		except:
+			return HttpResponse('Service Unavailable\n', status=503)
 
 		order = req.GET.get('order')
 		if order and order not in ('created', '-created'):
@@ -239,45 +272,71 @@ def items(req, alloc_id):
 			item_id = since_cursor
 
 		if order == 'created':
-			items, last_id = db.inbox_get_items_after(alloc_id, item_id, imax)
+			try:
+				items, last_id = db.inbox_get_items_after(inbox_id, item_id, imax)
+			except redis_ops.InvalidId:
+				return HttpResponseBadRequest('Bad Request: Invalid id\n')
+			except redis_ops.ObjectDoesNotExist:
+				return HttpResponseNotFound('Not Found\n')
+			except:
+				return HttpResponse('Service Unavailable\n', status=503)
+
 			if len(items) > 0:
 				out = dict()
 				out['last_cursor'] = last_id
 				out['items'] = items
-				return HttpResponse(json.dumps(out) + '\n')
+				return HttpResponse(json.dumps(out) + '\n', content_type='application/json')
 
 			if not grip.is_proxied(req, grip_proxies):
 				return HttpResponse('Not Implemented\n', status=501)
 
-			channel = gripcontrol.Channel(grip_prefix + 'inbox-' + alloc_id, last_id)
-			hr = dict()
-			hr['last_cursor'] = last_id
-			hr['items'] = list()
-			hr_json = json.dumps(hr) + '\n'
-			timeout_response = gripcontrol.Response(body=hr_json)
-			instruct = gripcontrol.create_hold_response(channel, timeout_response)
+			channel = gripcontrol.Channel(grip_prefix + 'inbox-' + inbox_id, last_id)
+			theaders = dict()
+			theaders['Content-Type'] = 'application/json'
+			tbody = dict()
+			tbody['last_cursor'] = last_id
+			tbody['items'] = list()
+			tbody_raw = json.dumps(tbody) + '\n'
+			tresponse = gripcontrol.Response(headers=theaders, body=tbody_raw)
+			instruct = gripcontrol.create_hold_response(channel, tresponse)
 			return HttpResponse(instruct, content_type='application/grip-instruct')
 		else: # -created
-			items, last_id, eof = db.inbox_get_items_before(alloc_id, item_id, imax)
+			try:
+				items, last_id, eof = db.inbox_get_items_before(inbox_id, item_id, imax)
+			except redis_ops.InvalidId:
+				return HttpResponseBadRequest('Bad Request: Invalid id\n')
+			except redis_ops.ObjectDoesNotExist:
+				return HttpResponseNotFound('Not Found\n')
+			except:
+				return HttpResponse('Service Unavailable\n', status=503)
+
 			out = dict()
 			if not eof and last_id:
 				out['last_cursor'] = last_id
 			out['items'] = items
-			return HttpResponse(json.dumps(out) + '\n')
+			return HttpResponse(json.dumps(out) + '\n', content_type='application/json')
 	else:
 		return HttpResponseNotAllowed(['GET'])
 
-def stream(req, alloc_id):
+def stream(req, inbox_id):
 	if req.method == 'GET':
 		try:
-			db.inbox_get(alloc_id)
+			db.inbox_get(inbox_id)
+		except redis_ops.InvalidId:
+			return HttpResponseBadRequest('Bad Request: Invalid id\n')
 		except redis_ops.ObjectDoesNotExist:
 			return HttpResponseNotFound('Not Found\n')
+		except:
+			return HttpResponse('Service Unavailable\n', status=503)
 
 		if not grip.is_proxied(req, grip_proxies):
 			return HttpResponse('Not Implemented\n', status=501)
 
-		instruct = gripcontrol.create_hold_stream(grip_prefix + 'inbox-' + alloc_id)
+		rheaders = dict()
+		rheaders['Content-Type'] = 'text/plain'
+		response = gripcontrol.Response(headers=rheaders, body='[opened]\n')
+
+		instruct = gripcontrol.create_hold_stream(grip_prefix + 'inbox-' + inbox_id, response)
 		return HttpResponse(instruct, content_type='application/grip-instruct')
 	else:
 		return HttpResponseNotAllowed(['GET'])

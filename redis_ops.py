@@ -6,10 +6,10 @@ import json
 import threading
 import redis
 
-class ObjectDoesNotExist(Exception):
+class InvalidId(Exception):
 	pass
 
-class InvalidId(Exception):
+class ObjectDoesNotExist(Exception):
 	pass
 
 class RedisOps(object):
