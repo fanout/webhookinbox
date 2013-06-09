@@ -16,6 +16,9 @@ if hasattr(settings, 'REDIS_HOST'):
 if hasattr(settings, 'REDIS_PORT'):
 	db.port = settings.REDIS_PORT
 
+if hasattr(settings, 'REDIS_DB'):
+	db.db = settings.REDIS_DB
+
 if hasattr(settings, 'GRIP_PROXIES'):
 	grip_proxies = settings.GRIP_PROXIES
 else:
