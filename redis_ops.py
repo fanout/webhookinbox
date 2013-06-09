@@ -17,6 +17,7 @@ class RedisOps(object):
 		self.prefix = ''
 		self.host = 'localhost'
 		self.port = 6379
+		self.db = 0
 		self.item_max = 100
 		self.item_burst_time = 120
 		self.item_burst_max = 1200
@@ -26,7 +27,7 @@ class RedisOps(object):
 	def _get_redis(self):
 		self.lock.acquire()
 		if not self.redis:
-			self.redis = redis.Redis(host=self.host, port=self.port)
+			self.redis = redis.Redis(host=self.host, port=self.port, db=self.db)
 		self.lock.release()
 		return self.redis
 

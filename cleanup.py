@@ -9,6 +9,9 @@ if hasattr(settings, 'REDIS_HOST'):
 if hasattr(settings, 'REDIS_PORT'):
 	db.port = settings.REDIS_PORT
 
+if hasattr(settings, 'REDIS_DB'):
+	db.db = settings.REDIS_DB
+
 if hasattr(settings, 'WHINBOX_REDIS_PREFIX'):
 	db.prefix = settings.WHINBOX_REDIS_PREFIX
 else:
