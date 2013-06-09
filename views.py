@@ -1,14 +1,46 @@
 from base64 import b64encode
 import datetime
 import json
+from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseNotAllowed
-import pubcontrol
 import gripcontrol
+import grip
 import redis_ops
 
-redis_ops.set_config('wi-', 'localhost', 6379)
+db = redis_ops.RedisOps()
+pub = grip.Publisher()
 
-pub = gripcontrol.GripPubControl('http://localhost:5561')
+if hasattr(settings, 'REDIS_HOST'):
+	db.host = settings.REDIS_HOST
+
+if hasattr(settings, 'REDIS_PORT'):
+	db.port = settings.REDIS_PORT
+
+if hasattr(settings, 'GRIP_PROXIES'):
+	grip_proxies = settings.GRIP_PROXIES
+else:
+	grip_proxies = list()
+
+if hasattr(settings, 'WHINBOX_REDIS_PREFIX'):
+	db.prefix = settings.WHINBOX_REDIS_PREFIX
+else:
+	db.prefix = 'wi-'
+
+if hasattr(settings, 'WHINBOX_GRIP_PREFIX'):
+	grip_prefix = settings.WHINBOX_GRIP_PREFIX
+else:
+	grip_prefix = 'wi-'
+
+if hasattr(settings, 'WHINBOX_ITEM_MAX'):
+	db.item_max = settings.WHINBOX_ITEM_MAX
+
+if hasattr(settings, 'WHINBOX_ITEM_BURST_TIME'):
+	db.item_burst_time = settings.WHINBOX_ITEM_BURST_TIME
+
+if hasattr(settings, 'WHINBOX_ITEM_BURST_MAX'):
+	db.item_burst_max = settings.WHINBOX_ITEM_BURST_MAX
+
+pub.proxies = grip_proxies
 
 # useful list derived from requestbin
 ignore_headers = """
@@ -97,7 +129,7 @@ def allocate(req):
 			ttl = int(ttl)
 		if ttl is None:
 			ttl = 60
-		alloc_id = redis_ops.inbox_create(ttl)
+		alloc_id = db.inbox_create(ttl)
 		out = dict()
 		out['id'] = alloc_id
 		out['target'] = 'http://' + host + '/a/' + alloc_id + '/'
@@ -109,14 +141,14 @@ def allocate(req):
 def inbox(req, alloc_id):
 	if req.method == 'DELETE':
 		try:
-			redis_ops.inbox_delete(alloc_id)
+			db.inbox_delete(alloc_id)
 		except redis_ops.ObjectDoesNotExist:
 			return HttpResponseNotFound('Not Found\n')
 
 		return HttpResponse('Deleted\n')
 	else:
 		try:
-			redis_ops.inbox_get(alloc_id)
+			db.inbox_get(alloc_id)
 		except redis_ops.ObjectDoesNotExist:
 			return HttpResponseNotFound('Not Found\n')
 
@@ -129,7 +161,9 @@ def inbox(req, alloc_id):
 		else:
 			item['type'] = 'normal'
 
-		item_id, prev_id = redis_ops.inbox_append_item(alloc_id, item)
+		item_id, prev_id = db.inbox_append_item(alloc_id, item)
+
+		db.inbox_clear_expired_items(alloc_id)
 
 		item['id'] = item_id
 
@@ -138,11 +172,7 @@ def inbox(req, alloc_id):
 		hr['items'] = [item]
 		hr_json = json.dumps(hr) + '\n'
 		hs_json = json.dumps(item) + '\n'
-		formats = list()
-		formats.append(gripcontrol.HttpResponseFormat(body=hr_json))
-		formats.append(gripcontrol.HttpStreamFormat(hs_json))
-		item = pubcontrol.Item(formats, item_id, prev_id)
-		pub.publish_async('inbox-' + alloc_id, item)
+		pub.publish(grip_prefix + 'inbox-' + alloc_id, item_id, prev_id, None, hr_json, hs_json)
 
 		if hub_challenge:
 			return HttpResponse(hub_challenge)
@@ -156,7 +186,7 @@ def refresh(req, alloc_id):
 			ttl = int(ttl)
 
 		try:
-			redis_ops.inbox_refresh(alloc_id, ttl)
+			db.inbox_refresh(alloc_id, ttl)
 		except redis_ops.ObjectDoesNotExist:
 			return HttpResponseNotFound('Not Found\n')
 
@@ -167,7 +197,7 @@ def refresh(req, alloc_id):
 def items(req, alloc_id):
 	if req.method == 'GET':
 		try:
-			redis_ops.inbox_refresh(alloc_id)
+			db.inbox_refresh(alloc_id)
 		except redis_ops.ObjectDoesNotExist:
 			return HttpResponseNotFound('Not Found\n')
 
@@ -209,14 +239,17 @@ def items(req, alloc_id):
 			item_id = since_cursor
 
 		if order == 'created':
-			items, last_id = redis_ops.inbox_get_items_after(alloc_id, item_id, imax)
+			items, last_id = db.inbox_get_items_after(alloc_id, item_id, imax)
 			if len(items) > 0:
 				out = dict()
 				out['last_cursor'] = last_id
 				out['items'] = items
 				return HttpResponse(json.dumps(out) + '\n')
 
-			channel = gripcontrol.Channel('inbox-' + alloc_id, last_id)
+			if not grip.is_proxied(req, grip_proxies):
+				return HttpResponse('Not Implemented\n', status=501)
+
+			channel = gripcontrol.Channel(grip_prefix + 'inbox-' + alloc_id, last_id)
 			hr = dict()
 			hr['last_cursor'] = last_id
 			hr['items'] = list()
@@ -225,7 +258,7 @@ def items(req, alloc_id):
 			instruct = gripcontrol.create_hold_response(channel, timeout_response)
 			return HttpResponse(instruct, content_type='application/grip-instruct')
 		else: # -created
-			items, last_id, eof = redis_ops.inbox_get_items_before(alloc_id, item_id, imax)
+			items, last_id, eof = db.inbox_get_items_before(alloc_id, item_id, imax)
 			out = dict()
 			if not eof and last_id:
 				out['last_cursor'] = last_id
@@ -237,11 +270,14 @@ def items(req, alloc_id):
 def stream(req, alloc_id):
 	if req.method == 'GET':
 		try:
-			redis_ops.inbox_get(alloc_id)
+			db.inbox_get(alloc_id)
 		except redis_ops.ObjectDoesNotExist:
 			return HttpResponseNotFound('Not Found\n')
 
-		instruct = gripcontrol.create_hold_stream('inbox-' + alloc_id)
+		if not grip.is_proxied(req, grip_proxies):
+			return HttpResponse('Not Implemented\n', status=501)
+
+		instruct = gripcontrol.create_hold_stream(grip_prefix + 'inbox-' + alloc_id)
 		return HttpResponse(instruct, content_type='application/grip-instruct')
 	else:
 		return HttpResponseNotAllowed(['GET'])
