@@ -107,7 +107,7 @@ var RootViewController = function ($scope, $location, $window, $interpolate, $q)
     var longPollWorker = function(id) {
         var inbox = $scope.inbox;
 
-        var url = API_ENDPOINT + "a/" + $scope.webHookId + "/items/?order=created";
+        var url = API_ENDPOINT + "i/" + $scope.webHookId + "/items/?order=created";
 
         if (id) {
             url += "&since=id:" + id;
@@ -138,7 +138,7 @@ var RootViewController = function ($scope, $location, $window, $interpolate, $q)
     $scope.initial = function() {
         var inbox = $scope.inbox;
 
-        var url = API_ENDPOINT + "a/" + $scope.webHookId + "/items/?order=-created&max=" + MAX_RESULTS;
+        var url = API_ENDPOINT + "i/" + $scope.webHookId + "/items/?order=-created&max=" + MAX_RESULTS;
         
         // initial load
         var poll = handlePastFetch(url, inbox);
@@ -153,7 +153,7 @@ var RootViewController = function ($scope, $location, $window, $interpolate, $q)
         ensureInbox(id);
         var inbox = $scope.inbox;
         
-        var url = API_ENDPOINT + "a/" + $scope.webHookId + "/items/?order=-created&max=" + MAX_RESULTS + "&since=cursor:" + inbox.historyCursor;
+        var url = API_ENDPOINT + "i/" + $scope.webHookId + "/items/?order=-created&max=" + MAX_RESULTS + "&since=cursor:" + inbox.historyCursor;
         
         // History get
         handlePastFetch(url, inbox);
