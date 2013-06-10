@@ -4,7 +4,7 @@ API
 Introduction
 ------------
 
-WebhookInbox offers an HTTP-based API that enables programmatic manipulation of inboxes. You can create and destroy inboxes, retrieve items from inboxes, and listen for newly-added items in realtime.
+WebhookInbox is a web service and website that receives HTTP requests from external sources and stores the data of those requests for later retrieval. This document describes WebhookInbox's HTTP-based API, which enables programmatic manipulation of inboxes. You can use the API to create and destroy inboxes, retrieve items from inboxes, and listen for newly-added items in realtime.
 
 All HTTP API calls are made to ``api.webhookinbox.com``.
 
@@ -73,7 +73,7 @@ Inboxes may also be explicitly destroyed without waiting for expiration.
 PubSubHubbub
 ------------
 
-Normally, the HTTP Response body contains the string "Ok". However, if the HTTP request is detected to be a PubSubHubbub verification request, then WebhookInbox will respond appropriately such that the verification succeeds. This means it is possible to use an inbox URL as the callback of a PubSubHubbub subscription request, and receive feed updates into the inbox.
+Normally, when a request is made to an inbox URL, WebhookInbox responds with the string "Ok". However, if the request is detected to be a PubSubHubbub verification request, then WebhookInbox will respond appropriately such that the verification succeeds. This means it is possible to use an inbox URL as the callback of a PubSubHubbub subscription request, and receive feed updates into the inbox.
 
 Creating, refreshing, destroying
 --------------------------------
