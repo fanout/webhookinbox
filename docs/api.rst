@@ -90,17 +90,17 @@ This will yield a response such as::
   {
     "id": "vJ2lWRKY",
     "target": "http://api.webhookinbox.com/i/vJ2lWRKY/",
-    "ttl": 60
+    "ttl": 3600
   }
 
-The ``target`` field is the inbox URL. Requests made to this URL will have their data captured and stored in the inbox. The ``ttl`` value is in minutes, so in this example the inbox has a TTL of 1 hour.
+The ``target`` field is the inbox URL. Requests made to this URL will have their data captured and stored in the inbox. The ``ttl`` value specifies a duration in seconds, so in this example the inbox has a TTL of 1 hour.
 
 Optionally, you can ask for a specific TTL by providing one as a post parameter::
 
   POST /create/ HTTP/1.1
   Content-Type: application/x-www-form-urlencoded
 
-  ttl=5
+  ttl=300
 
 The service should then honor your request as such::
 
@@ -110,7 +110,7 @@ The service should then honor your request as such::
   {
     "id": "vJ2lWRKY",
     "target": "http://api.webhookinbox.com/i/vJ2lWRKY/",
-    "ttl": 5
+    "ttl": 300
   }
 
 If an inbox should survive longer than its TTL, then it will need to be periodically refreshed::

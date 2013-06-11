@@ -134,7 +134,7 @@ def create(req):
 		if ttl is not None:
 			ttl = int(ttl)
 		if ttl is None:
-			ttl = 60
+			ttl = 3600
 
 		try:
 			inbox_id = db.inbox_create(ttl)

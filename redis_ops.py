@@ -63,7 +63,7 @@ class RedisOps(object):
 					if pipe.exists(key):
 						# try another random value
 						continue
-					exp_time = now + (ttl * 60)
+					exp_time = now + ttl
 					pipe.multi()
 					pipe.set(key, json.dumps(val))
 					pipe.sadd(set_key, id)
@@ -127,7 +127,7 @@ class RedisOps(object):
 					val = json.loads(val_json)
 					if newttl is not None:
 						val['ttl'] = newttl
-					exp_time = now + (val['ttl'] * 60)
+					exp_time = now + val['ttl']
 					pipe.multi()
 					pipe.set(key, json.dumps(val))
 					pipe.zadd(exp_key, id, exp_time)
