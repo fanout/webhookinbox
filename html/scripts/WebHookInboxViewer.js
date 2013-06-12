@@ -1,3 +1,7 @@
+var API_ENDPOINT = Fanout.WebHookInboxViewer.config.apiEndpoint;
+var MAX_RETRIES = 2;
+var MAX_RESULTS = 3;
+
 var WebHookInboxViewer = angular.module('WebHookInboxViewer', ['ui.bootstrap']);
 
 WebHookInboxViewer.config(function($routeProvider, $locationProvider) {
@@ -5,21 +9,30 @@ WebHookInboxViewer.config(function($routeProvider, $locationProvider) {
     
     $routeProvider
         .when("/", {
-            
+            templateUrl: "home-template.html",
+            controller: "HomeCtrl"
         })
         .when("/view/:webHookId", {
-            templateUrl: "webhookinbox-template.html",
+            templateUrl: "webHookinbox-template.html",
             controller: "WebHookInboxCtrl"
+        })
+        .otherwise({
+            redirectUrl: "/"
         });
 });
 
 WebHookInboxViewer.factory("Pollymer", function($q, $rootScope) {
-    var MAX_RETRIES = 2;
     return {
         create: function() {
             var req = new Pollymer.Request({maxTries: MAX_RETRIES});
             return {
+                post: function(url) {
+                    return this.start('POST', url);
+                },
                 get: function(url) {
+                    return this.start('GET', url);
+                },
+                start: function(method, url) {
                     var d = $q.defer();
                     req.on('error', function(reason) {
                         d.reject({code: -1, result: reason});
@@ -33,7 +46,7 @@ WebHookInboxViewer.factory("Pollymer", function($q, $rootScope) {
                         }
                         $rootScope.$apply();
                     });
-                    req.start('GET', url);
+                    req.start(method, url);
                     return d.promise;
                 },
                 abort: function() {
@@ -44,10 +57,33 @@ WebHookInboxViewer.factory("Pollymer", function($q, $rootScope) {
     }
 });
 
-WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $window, $route, Pollymer) {
+WebHookInboxViewer.controller("HomeCtrl", function ($scope, $location, Pollymer) {
+    $scope.webHookId = "";
+    
+    var openInbox = function(id) {
+        $location.url("/view/" + id);
+    };
+    
+    $scope.create = function() {
+        $scope.creating = true;
+        var url = API_ENDPOINT + "create/";
+        var pollymer = Pollymer.create();
+        var poll = pollymer.post(url);
+        poll.then(function(result) {
+            var result = result.result;
+            console.log(result);
+            openInbox(result.id);
+        }, function(reason) {
+            $scope.error = true;
+        });
+    };
+    
+    $scope.go = function() {
+        openInbox($scope.webHookId);
+    };
+});
 
-    var API_ENDPOINT = Fanout.WebHookInboxViewer.config.apiEndpoint;
-    var MAX_RESULTS = 3;
+WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $window, $route, Pollymer) {
 
     $scope.inbox = { updatesCursor: null, historyCursor: null, newestId: null, entries: [], fetching: false, pollingUpdates: false, error: false };
 
@@ -143,6 +179,13 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
         // initial load
         var poll = handlePastFetch(url);
         poll.then(function(result) {
+            
+            var prefix = "";
+            if (API_ENDPOINT.substring(0, 2) == "//") {
+                prefix = "http:";
+            }
+            
+            $scope.webHookEndpoint = prefix + API_ENDPOINT + "i/" + webHookId + "/";
             var id = ("result" in result && "items" in result.result && result.result.items.length) ? result.result.items[0].id : null;
             longPollUpdates(id);
         });
