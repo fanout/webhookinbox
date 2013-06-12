@@ -44,24 +44,31 @@ WebHookInboxViewer.factory("Pollymer", function($q, $rootScope) {
     }
 });
 
-WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $window, $interpolate, $route, Pollymer) {
+WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $window, $route, Pollymer) {
 
     var API_ENDPOINT = Fanout.WebHookInboxViewer.config.apiEndpoint;
     var MAX_RESULTS = 3;
 
-    $scope.webHookId = $route.current.params.webHookId;
+    $scope.inbox = { updatesCursor: null, historyCursor: null, newestId: null, entries: [], fetching: false, pollingUpdates: false, error: false };
 
-    var inboxes = {};
-    $scope.inbox = {};
+    var webHookId = $route.current.params.webHookId;
 
     var form = angular.element($window.document.getElementById("webHookSelectForm"));
     var webHookIdField = angular.element(form[0].elements['webHookId']);
-    webHookIdField.val($scope.webHookId);
-    
     form.bind('submit', function(e) {
         var id = webHookIdField.val();
         $location.url("/view/" + id);
+        $scope.$apply();
         e.preventDefault();
+    });
+
+    webHookIdField.val(webHookId);
+    webHookIdField.bind('focus', function(e) {
+        this.select();
+        angular.element(this).bind('mouseup', function(e) {
+            e.preventDefault();
+            angular.element(this).unbind('mouseup');
+        });
     });
 
     var pollymerLong = null;
@@ -72,44 +79,25 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
         }
     };
 
-    $scope.$watch('webHookId', function(id) {
-        ensureStopLongPoll();
-
-        if (!id) {
-            return;
-        }
-
-        ensureInbox(id);
-
-        $scope.initial();
-    });
-
-    var ensureInbox = function(id) {
-        if (!(id in inboxes)) {
-            inboxes[id] = { updatesCursor: null, historyCursor: null, newestId: null, entries: [], fetching: false, pollingUpdates: false, error: false };
-        }
-        $scope.inbox = inboxes[id];
-    };
-
-    var handlePastFetch = function(url, inbox) {
-        inbox.fetching = true;
+    var handlePastFetch = function(url) {
+        $scope.inbox.fetching = true;
         var pollymer = Pollymer.create();
         var poll = pollymer.get(url);
         poll.always(function() {
-            inbox.fetching = false;
+            $scope.inbox.fetching = false;
         });
         poll.then(function(result) {
             var items = result.result.items;
             if ("last_cursor" in result.result) {
-                inbox.historyCursor = result.result.last_cursor;
+                $scope.inbox.historyCursor = result.result.last_cursor;
             } else {
-                inbox.historyCursor = -1;
+                $scope.inbox.historyCursor = -1;
             }
             for(var i = 0; i < items.length; i++) {
-                inbox.entries.push(items[i]);
+                $scope.inbox.entries.push(items[i]);
             }
         }, function() {
-            inbox.error = true;
+            $scope.inbox.error = true;
         });
         return poll;
     };
@@ -120,30 +108,28 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
     };
 
     var longPollWorker = function(id) {
-        var inbox = $scope.inbox;
-
-        var url = API_ENDPOINT + "i/" + $scope.webHookId + "/items/?order=created";
+        var url = API_ENDPOINT + "i/" + webHookId + "/items/?order=created";
 
         if (id) {
             url += "&since=id:" + id;
-        } else if (inbox.updatesCursor) {
-            url += "&since=cursor:" + inbox.updatesCursor;
+        } else if ($scope.inbox.updatesCursor) {
+            url += "&since=cursor:" + $scope.inbox.updatesCursor;
         }
 
-        inbox.pollingUpdates = true;
+        $scope.inbox.pollingUpdates = true;
         pollymerLong = pollymerLong || Pollymer.create();
         var longPoll = pollymerLong.get(url);
         longPoll.always(function() {
-            inbox.pollingUpdates = false;
+            $scope.inbox.pollingUpdates = false;
         });
         longPoll.then(function(result) {
             if (result.result === "") {
                 return;
             }
-            inbox.updatesCursor = result.result.last_cursor;
+            $scope.inbox.updatesCursor = result.result.last_cursor;
             var items = result.result.items;
             for(var i = 0; i < items.length; i++) {
-                inbox.entries.unshift(items[i]);
+                $scope.inbox.entries.unshift(items[i]);
             }
         });
         longPoll.then(function() {
@@ -151,13 +137,11 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
         })
     };
 
-    $scope.initial = function() {
-        var inbox = $scope.inbox;
-
-        var url = API_ENDPOINT + "i/" + $scope.webHookId + "/items/?order=-created&max=" + MAX_RESULTS;
+    var initial = function() {
+        var url = API_ENDPOINT + "i/" + webHookId + "/items/?order=-created&max=" + MAX_RESULTS;
 
         // initial load
-        var poll = handlePastFetch(url, inbox);
+        var poll = handlePastFetch(url);
         poll.then(function(result) {
             var id = ("result" in result && "items" in result.result && result.result.items.length) ? result.result.items[0].id : null;
             longPollUpdates(id);
@@ -165,13 +149,11 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
     };
 
     $scope.history = function() {
-        var id = $scope.webHookId;
-        ensureInbox(id);
-        var inbox = $scope.inbox;
-
-        var url = API_ENDPOINT + "i/" + $scope.webHookId + "/items/?order=-created&max=" + MAX_RESULTS + "&since=cursor:" + inbox.historyCursor;
+        var url = API_ENDPOINT + "i/" + webHookId + "/items/?order=-created&max=" + MAX_RESULTS + "&since=cursor:" + $scope.inbox.historyCursor;
 
         // History get
-        handlePastFetch(url, inbox);
+        handlePastFetch(url);
     };
+    
+    initial();
 });
