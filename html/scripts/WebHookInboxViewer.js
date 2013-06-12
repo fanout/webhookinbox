@@ -200,5 +200,19 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
         handlePastFetch(url);
     };
     
+    $scope.delete = function() {
+        if($window.confirm("Really delete this inbox?\nThis cannot be undone.")) {
+            var url = API_ENDPOINT + "i/" + webHookId + "/";
+            var pollymer = Pollymer.create();
+            var poll = pollymer.start("DELETE", url);
+            poll.then(function(result) {
+                console.log(result);
+                $location.url("/");
+            }, function(reason) {
+                $window.alert("There was a problem deleting the inbox.");
+            });
+        }
+    };
+    
     initial();
 });
