@@ -13,32 +13,36 @@ WebHookInboxViewer.config(function($routeProvider, $locationProvider) {
         });
 });
 
-WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $window, $interpolate, $q, $route) {
+WebHookInboxViewer.factory("Pollymer", function($q, $rootScope) {
+    var MAX_RETRIES = 2;
+    return {
+        get: function(url, reusePoll) {
+            var d = $q.defer();
+            var req = reusePoll ? reusePoll.req : new Pollymer.Request({maxTries: MAX_RETRIES});
+            req.on('error', function(reason) {
+                d.reject({code: -1, result: reason});
+                $rootScope.$apply();
+            });
+            req.on('finished', function(code, result, headers) {
+                if (code >= 200 && code < 300) {
+                    d.resolve({code: code, result: result, headers: headers});
+                } else {
+                    d.reject({code: code, result: result, headers: headers});
+                }
+                $rootScope.$apply();
+            });
+            req.start('GET', url);
+            var promise = d.promise;
+            promise.req = req;
+            return promise;
+        }
+    }
+});
+
+WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $window, $interpolate, $route, Pollymer) {
 
     var API_ENDPOINT = Fanout.WebHookInboxViewer.config.apiEndpoint;
     var MAX_RESULTS = 3;
-    var MAX_RETRIES = 2;
-
-    var pollymerGet = function(url, reusePoll) {
-        var d = $q.defer();
-        var req = reusePoll ? reusePoll.req : new Pollymer.Request({maxTries: MAX_RETRIES});
-        req.on('error', function(reason) {
-            d.reject({code: -1, result: reason});
-            $scope.$apply();
-        });
-        req.on('finished', function(code, result, headers) {
-            if (code >= 200 && code < 300) {
-                d.resolve({code: code, result: result, headers: headers});
-            } else {
-                d.reject({code: code, result: result, headers: headers});
-            }
-            $scope.$apply();
-        })
-        req.start('GET', url);
-        var promise = d.promise;
-        promise.req = req;
-        return promise;
-    };
 
     $scope.webHookId = $route.current.params.webHookId;
 
@@ -86,7 +90,7 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
 
     var handlePastFetch = function(url, inbox) {
         inbox.fetching = true;
-        var poll = pollymerGet(url);
+        var poll = Pollymer.get(url);
         poll.always(function() {
             inbox.fetching = false;
         });
@@ -123,7 +127,7 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
         }
 
         inbox.pollingUpdates = true;
-        longPoll = pollymerGet(url, longPoll);
+        longPoll = Pollymer.get(url, longPoll);
         longPoll.always(function() {
             inbox.pollingUpdates = false;
         });
