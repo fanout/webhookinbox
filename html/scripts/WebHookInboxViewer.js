@@ -22,9 +22,12 @@ WebHookInboxViewer.config(function($routeProvider, $locationProvider) {
 });
 
 WebHookInboxViewer.factory("Pollymer", function($q, $rootScope) {
+    var count = 0;
     return {
         create: function() {
             var req = new Pollymer.Request({maxTries: MAX_RETRIES});
+            var id = ++count;
+            console.log("Pollymer " + id + " created");
             return {
                 post: function(url) {
                     return this.start('POST', url);
@@ -33,12 +36,15 @@ WebHookInboxViewer.factory("Pollymer", function($q, $rootScope) {
                     return this.start('GET', url);
                 },
                 start: function(method, url) {
+                    console.log("Pollymer " + id + "> start (" + method + ")");
                     var d = $q.defer();
                     req.on('error', function(reason) {
+                        console.log("Pollymer " + id + "< error");
                         d.reject({code: -1, result: reason});
                         $rootScope.$apply();
                     });
                     req.on('finished', function(code, result, headers) {
+                        console.log("Pollymer " + id + "< finished (" + code + ")");
                         if (code >= 200 && code < 300) {
                             d.resolve({code: code, result: result, headers: headers});
                         } else {
@@ -47,9 +53,14 @@ WebHookInboxViewer.factory("Pollymer", function($q, $rootScope) {
                         $rootScope.$apply();
                     });
                     req.start(method, url);
+                    d.promise.always(function() {
+                        req.off('error');
+                        req.off('finished');
+                    });
                     return d.promise;
                 },
                 abort: function() {
+                    console.log("Pollymer " + id + "< abort");
                     req.abort();
                 }
             };
@@ -71,7 +82,6 @@ WebHookInboxViewer.controller("HomeCtrl", function ($scope, $location, Pollymer)
         var poll = pollymer.post(url);
         poll.then(function(result) {
             var result = result.result;
-            console.log(result);
             openInbox(result.id);
         }, function(reason) {
             $scope.error = true;
@@ -109,14 +119,6 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
         });
     });
 
-    var pollymerLong = null;
-    var ensureStopLongPoll = function() {
-        if (pollymerLong != null) {
-            pollymerLong.abort();
-            pollymerLong = null;
-        }
-    };
-
     var handlePastFetch = function(url) {
         $scope.inbox.fetching = true;
         var pollymer = Pollymer.create();
@@ -140,12 +142,8 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
         return poll;
     };
 
-    var longPollUpdates = function(id) {
-        ensureStopLongPoll();
-        longPollWorker(id);
-    };
-
-    var longPollWorker = function(id) {
+    var longPollymer = null;
+    var longPoll = function(id) {
         var url = API_ENDPOINT + "i/" + webHookId + "/items/?order=created";
 
         if (id) {
@@ -155,12 +153,12 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
         }
 
         $scope.inbox.pollingUpdates = true;
-        pollymerLong = pollymerLong || Pollymer.create();
-        var longPoll = pollymerLong.get(url);
-        longPoll.always(function() {
+        longPollymer = longPollymer || Pollymer.create();
+        var poll = longPollymer.get(url);
+        poll.always(function() {
             $scope.inbox.pollingUpdates = false;
         });
-        longPoll.then(function(result) {
+        poll.then(function(result) {
             if (result.result === "") {
                 return;
             }
@@ -170,9 +168,16 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
                 $scope.inbox.entries.unshift(items[i]);
             }
         });
-        longPoll.then(function() {
-            longPollWorker();
+        poll.then(function() {
+            longPoll();
         })
+    };
+
+    var stopLongPoll = function() {
+        if (longPollymer != null) {
+            longPollymer.abort();
+            longPollymer = null;
+        }
     };
 
     var initial = function() {
@@ -189,9 +194,13 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
             
             $scope.webHookEndpoint = prefix + API_ENDPOINT + "i/" + webHookId + "/";
             var id = ("result" in result && "items" in result.result && result.result.items.length) ? result.result.items[0].id : null;
-            longPollUpdates(id);
+            longPoll(id);
         });
     };
+
+    $scope.$on("$routeChangeStart", function() {
+        stopLongPoll();
+    });
 
     $scope.history = function() {
         var url = API_ENDPOINT + "i/" + webHookId + "/items/?order=-created&max=" + MAX_RESULTS + "&since=cursor:" + $scope.inbox.historyCursor;
@@ -206,7 +215,6 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
             var pollymer = Pollymer.create();
             var poll = pollymer.start("DELETE", url);
             poll.then(function(result) {
-                console.log(result);
                 $location.url("/");
             }, function(reason) {
                 $window.alert("There was a problem deleting the inbox.");
