@@ -1,11 +1,24 @@
 var WebHookInboxViewer = angular.module('WebHookInboxViewer', ['ui.bootstrap']);
 
-var RootViewController = function ($scope, $location, $window, $interpolate, $q) {
+WebHookInboxViewer.config(function($routeProvider, $locationProvider) {
+    $locationProvider.html5Mode(true).hashPrefix('!');
+    
+    $routeProvider
+        .when("/", {
+            
+        })
+        .when("/view/:webHookId", {
+            templateUrl: "webhookinbox-template.html",
+            controller: "WebHookInboxCtrl"
+        });
+});
+
+WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $window, $interpolate, $q, $route) {
 
     var API_ENDPOINT = Fanout.WebHookInboxViewer.config.apiEndpoint;
     var MAX_RESULTS = 3;
     var MAX_RETRIES = 2;
-    
+
     var pollymerGet = function(url, reusePoll) {
         var d = $q.defer();
         var req = reusePoll ? reusePoll.req : new Pollymer.Request({maxTries: MAX_RETRIES});
@@ -27,27 +40,21 @@ var RootViewController = function ($scope, $location, $window, $interpolate, $q)
         return promise;
     };
 
-    $scope.webHookId = "";
+    $scope.webHookId = $route.current.params.webHookId;
 
     var inboxes = {};
     $scope.inbox = {};
-    
-    $scope.location = $location;
-    
-    $scope.$watch(function() {
-        return $location.search().id;
-    }, function(id) {
-        $scope.webHookId = id;
-    });
-    
+
     var form = angular.element($window.document.getElementById("webHookSelectForm"));
+    var webHookIdField = angular.element(form[0].elements['webHookId']);
+    webHookIdField.val($scope.webHookId);
+    
     form.bind('submit', function(e) {
-        var id = angular.element(this.elements['webHookId']).val();
-        $scope.location.search({id: id});
-        $scope.$apply();
+        var id = webHookIdField.val();
+        $location.url("/view/" + id);
         e.preventDefault();
     });
-    
+
     var longPoll = null;
     var ensureStopLongPoll = function() {
         if (longPoll != null) {
@@ -57,26 +64,26 @@ var RootViewController = function ($scope, $location, $window, $interpolate, $q)
             longPoll = null;
         }
     };
-    
+
     $scope.$watch('webHookId', function(id) {
         ensureStopLongPoll();
-        
+
         if (!id) {
             return;
         }
-        
+
         ensureInbox(id);
-        
+
         $scope.initial();
     });
-    
+
     var ensureInbox = function(id) {
         if (!(id in inboxes)) {
             inboxes[id] = { updatesCursor: null, historyCursor: null, newestId: null, entries: [], fetching: false, pollingUpdates: false, error: false };
         }
         $scope.inbox = inboxes[id];
     };
-    
+
     var handlePastFetch = function(url, inbox) {
         inbox.fetching = true;
         var poll = pollymerGet(url);
@@ -98,12 +105,12 @@ var RootViewController = function ($scope, $location, $window, $interpolate, $q)
         });
         return poll;
     };
-    
+
     var longPollUpdates = function(id) {
         ensureStopLongPoll();
         longPollWorker(id);
     };
-    
+
     var longPollWorker = function(id) {
         var inbox = $scope.inbox;
 
@@ -134,12 +141,12 @@ var RootViewController = function ($scope, $location, $window, $interpolate, $q)
             longPollWorker();
         })
     };
-    
+
     $scope.initial = function() {
         var inbox = $scope.inbox;
 
         var url = API_ENDPOINT + "i/" + $scope.webHookId + "/items/?order=-created&max=" + MAX_RESULTS;
-        
+
         // initial load
         var poll = handlePastFetch(url, inbox);
         poll.then(function(result) {
@@ -147,15 +154,15 @@ var RootViewController = function ($scope, $location, $window, $interpolate, $q)
             longPollUpdates(id);
         });
     };
-    
+
     $scope.history = function() {
         var id = $scope.webHookId;
         ensureInbox(id);
         var inbox = $scope.inbox;
-        
+
         var url = API_ENDPOINT + "i/" + $scope.webHookId + "/items/?order=-created&max=" + MAX_RESULTS + "&since=cursor:" + inbox.historyCursor;
-        
+
         // History get
         handlePastFetch(url, inbox);
     };
-};
+});
