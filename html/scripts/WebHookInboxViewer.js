@@ -2,7 +2,7 @@ var WebHookInboxViewer = angular.module('WebHookInboxViewer', ['ui.bootstrap']);
 
 var RootViewController = function ($scope, $location, $window, $interpolate, $q) {
 
-    var API_ENDPOINT = "{api-endpoint}"
+    var API_ENDPOINT = Fanout.WebHookInboxViewer.config.apiEndpoint;
     var MAX_RESULTS = 3;
     var MAX_RETRIES = 2;
     
