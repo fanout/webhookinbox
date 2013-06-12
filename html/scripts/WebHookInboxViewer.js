@@ -16,25 +16,30 @@ WebHookInboxViewer.config(function($routeProvider, $locationProvider) {
 WebHookInboxViewer.factory("Pollymer", function($q, $rootScope) {
     var MAX_RETRIES = 2;
     return {
-        get: function(url, reusePoll) {
-            var d = $q.defer();
-            var req = reusePoll ? reusePoll.req : new Pollymer.Request({maxTries: MAX_RETRIES});
-            req.on('error', function(reason) {
-                d.reject({code: -1, result: reason});
-                $rootScope.$apply();
-            });
-            req.on('finished', function(code, result, headers) {
-                if (code >= 200 && code < 300) {
-                    d.resolve({code: code, result: result, headers: headers});
-                } else {
-                    d.reject({code: code, result: result, headers: headers});
+        create: function() {
+            var req = new Pollymer.Request({maxTries: MAX_RETRIES});
+            return {
+                get: function(url) {
+                    var d = $q.defer();
+                    req.on('error', function(reason) {
+                        d.reject({code: -1, result: reason});
+                        $rootScope.$apply();
+                    });
+                    req.on('finished', function(code, result, headers) {
+                        if (code >= 200 && code < 300) {
+                            d.resolve({code: code, result: result, headers: headers});
+                        } else {
+                            d.reject({code: code, result: result, headers: headers});
+                        }
+                        $rootScope.$apply();
+                    });
+                    req.start('GET', url);
+                    return d.promise;
+                },
+                abort: function() {
+                    req.abort();
                 }
-                $rootScope.$apply();
-            });
-            req.start('GET', url);
-            var promise = d.promise;
-            promise.req = req;
-            return promise;
+            };
         }
     }
 });
@@ -59,13 +64,11 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
         e.preventDefault();
     });
 
-    var longPoll = null;
+    var pollymerLong = null;
     var ensureStopLongPoll = function() {
-        if (longPoll != null) {
-            if (longPoll.req != null) {
-                longPoll.req.abort();
-            }
-            longPoll = null;
+        if (pollymerLong != null) {
+            pollymerLong.abort();
+            pollymerLong = null;
         }
     };
 
@@ -90,7 +93,8 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
 
     var handlePastFetch = function(url, inbox) {
         inbox.fetching = true;
-        var poll = Pollymer.get(url);
+        var pollymer = Pollymer.create();
+        var poll = pollymer.get(url);
         poll.always(function() {
             inbox.fetching = false;
         });
@@ -127,7 +131,8 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
         }
 
         inbox.pollingUpdates = true;
-        longPoll = Pollymer.get(url, longPoll);
+        pollymerLong = pollymerLong || Pollymer.create();
+        var longPoll = pollymerLong.get(url);
         longPoll.always(function() {
             inbox.pollingUpdates = false;
         });
