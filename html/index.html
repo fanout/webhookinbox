@@ -27,7 +27,7 @@
         <div>Welcome to WebHookInbox.</div>
         
         <div ng-show="!error">
-            <button ng-click="create()" ng-disabled="creating">Create New Inbox</button>
+            <button ng-click="create()" ng-disabled="creating" class="btn btn-large btn-primary"><i class="icon-inbox icon-white"></i> Create New Inbox</button>
 
             <div ng-show="creating">
                 Creating ...
@@ -40,7 +40,7 @@
                     <input type="text" ng-model="webHookId" />
                 </div>
                 <div>
-                    <button ng-click="go()" ng-disabled="webHookId.length == 0">Go to Inbox</button>
+                    <button ng-click="go()" ng-disabled="webHookId.length == 0" class="btn btn-mini">Go to Inbox</button>
                 </div>
             </div>
         </div>
@@ -69,7 +69,7 @@
             </div>
             <div>
                 <input type="text" name="webHookId" />
-                <input type="submit" value="Go" />
+                <button type="submit" class="btn btn-mini">Go</button>
             </div>
         </form>
 
@@ -121,7 +121,7 @@
             </div>
 
             <div ng-show="!inbox.fetching && inbox.historyCursor != null && inbox.historyCursor >= 0">
-                <button ng-click="history()">Show past entries</button>
+                <button ng-click="history()" class="btn btn-mini">Show past entries</button>
             </div>
         </div>
 
