@@ -93,8 +93,10 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
     var webHookIdField = angular.element(form[0].elements['webHookId']);
     form.bind('submit', function(e) {
         var id = webHookIdField.val();
-        $location.url("/view/" + id);
-        $scope.$apply();
+        if (id != webHookId) {
+            $location.url("/view/" + id);
+            $scope.$apply();
+        }
         e.preventDefault();
     });
 
