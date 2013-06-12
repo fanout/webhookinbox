@@ -143,14 +143,33 @@ def create(req):
 
 		out = dict()
 		out['id'] = inbox_id
-		out['target'] = 'http://' + host + '/i/' + inbox_id + '/'
+		out['base_url'] = 'http://' + host + '/i/' + inbox_id + '/'
 		out['ttl'] = ttl
 		return HttpResponse(json.dumps(out) + '\n', content_type='application/json')
 	else:
 		return HttpResponseNotAllowed(['POST'])
 
 def inbox(req, inbox_id):
-	if req.method == 'DELETE':
+	if req.method == 'GET':
+		host = req.META.get('HTTP_HOST')
+		if not host:
+			return HttpResponseBadRequest('Bad Request: No \'Host\' header\n')
+
+		try:
+			inbox = db.inbox_get(inbox_id)
+		except redis_ops.InvalidId:
+			return HttpResponseBadRequest('Bad Request: Invalid id\n')
+		except redis_ops.ObjectDoesNotExist:
+			return HttpResponseNotFound('Not Found\n')
+		except:
+			return HttpResponse('Service Unavailable\n', status=503)
+
+		out = dict()
+		out['id'] = inbox_id
+		out['base_url'] = 'http://' + host + '/i/' + inbox_id + '/'
+		out['ttl'] = inbox['ttl']
+		return HttpResponse(json.dumps(out) + '\n', content_type='application/json')
+	elif req.method == 'DELETE':
 		try:
 			db.inbox_delete(inbox_id)
 		except redis_ops.InvalidId:
@@ -162,50 +181,7 @@ def inbox(req, inbox_id):
 
 		return HttpResponse('Deleted\n')
 	else:
-		try:
-			db.inbox_get(inbox_id)
-		except redis_ops.InvalidId:
-			return HttpResponseBadRequest('Bad Request: Invalid id\n')
-		except redis_ops.ObjectDoesNotExist:
-			return HttpResponseNotFound('Not Found\n')
-		except:
-			return HttpResponse('Service Unavailable\n', status=503)
-
-		# pubsubhubbub verify request?
-		hub_challenge = req.GET.get('hub.challenge')
-
-		item = _req_to_item(req)
-		if hub_challenge:
-			item['type'] = 'hub-verify'
-		else:
-			item['type'] = 'normal'
-
-		try:
-			item_id, prev_id = db.inbox_append_item(inbox_id, item)
-			db.inbox_clear_expired_items(inbox_id)
-		except redis_ops.InvalidId:
-			return HttpResponseBadRequest('Bad Request: Invalid id\n')
-		except redis_ops.ObjectDoesNotExist:
-			return HttpResponseNotFound('Not Found\n')
-		except:
-			return HttpResponse('Service Unavailable\n', status=503)
-
-		item['id'] = item_id
-
-		hr_headers = dict()
-		hr_headers['Content-Type'] = 'application/json'
-		hr = dict()
-		hr['last_cursor'] = item_id
-		hr['items'] = [item]
-		hr_body = json.dumps(hr) + '\n'
-		hs_body = json.dumps(item) + '\n'
-
-		pub.publish(grip_prefix + 'inbox-' + inbox_id, item_id, prev_id, hr_headers, hr_body, hs_body)
-
-		if hub_challenge:
-			return HttpResponse(hub_challenge)
-		else:
-			return HttpResponse('Ok\n')
+		return HttpResponseNotAllowed(['GET', 'DELETE'])
 
 def refresh(req, inbox_id):
 	if req.method == 'POST':
@@ -225,6 +201,52 @@ def refresh(req, inbox_id):
 		return HttpResponse('Refreshed\n')
 	else:
 		return HttpResponseNotAllowed(['POST'])
+
+def hit(req, inbox_id):
+	try:
+		db.inbox_get(inbox_id)
+	except redis_ops.InvalidId:
+		return HttpResponseBadRequest('Bad Request: Invalid id\n')
+	except redis_ops.ObjectDoesNotExist:
+		return HttpResponseNotFound('Not Found\n')
+	except:
+		return HttpResponse('Service Unavailable\n', status=503)
+
+	# pubsubhubbub verify request?
+	hub_challenge = req.GET.get('hub.challenge')
+
+	item = _req_to_item(req)
+	if hub_challenge:
+		item['type'] = 'hub-verify'
+	else:
+		item['type'] = 'normal'
+
+	try:
+		item_id, prev_id = db.inbox_append_item(inbox_id, item)
+		db.inbox_clear_expired_items(inbox_id)
+	except redis_ops.InvalidId:
+		return HttpResponseBadRequest('Bad Request: Invalid id\n')
+	except redis_ops.ObjectDoesNotExist:
+		return HttpResponseNotFound('Not Found\n')
+	except:
+		return HttpResponse('Service Unavailable\n', status=503)
+
+	item['id'] = item_id
+
+	hr_headers = dict()
+	hr_headers['Content-Type'] = 'application/json'
+	hr = dict()
+	hr['last_cursor'] = item_id
+	hr['items'] = [item]
+	hr_body = json.dumps(hr) + '\n'
+	hs_body = json.dumps(item) + '\n'
+
+	pub.publish(grip_prefix + 'inbox-' + inbox_id, item_id, prev_id, hr_headers, hr_body, hs_body)
+
+	if hub_challenge:
+		return HttpResponse(hub_challenge)
+	else:
+		return HttpResponse('Ok\n')
 
 def items(req, inbox_id):
 	if req.method == 'GET':
