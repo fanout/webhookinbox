@@ -35,9 +35,11 @@ WebhookInbox is a Django App. An easy way to set things up is to use Apache, WSG
 
 First, create a Django project and put the app inside:
 
-    django-startproject wiproj
-    mkdir wiproj/apps
-    cd wiproj/apps
+    mkdir -p wi/projects wi/apps
+    cd wi/projects
+    django-startproject wi_api
+    mv wi_api api
+    cd ../apps
     git clone git://github.com/fanout/webhookinbox.git
 
 Edit your settings.py so that Django knows how to find the app, by including something like this at the top:
@@ -46,9 +48,9 @@ Edit your settings.py so that Django knows how to find the app, by including som
     import sys
 
     PROJECT_ROOT = os.path.dirname(__file__)
-    sys.path.insert(0, os.path.join(PROJECT_ROOT, "../apps"))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, "../../../apps"))
 
-Then add 'webhookinbox' to your INSTALLED_APPS. Also, make sure CsrfViewMiddleware is disabled (comment it out).
+Then add 'webhookinbox.api' to your INSTALLED_APPS. Also, make sure CsrfViewMiddleware is disabled (comment it out).
 
 Additionally, set GRIP_PROXIES:
 
@@ -69,19 +71,11 @@ Additionally, set GRIP_PROXIES:
         #}
     ]
 
-In Apache's global configuration, set `WSGIPythonPath` to the base directory of the project. Then, create a virtual host with `WSGIScriptAlias` pointing to the wsgi.py file. E.g.:
+In Apache's global configuration, set `WSGIPythonPath` to the base directory of the project (e.g. "/path/to/wi/projects/api"). Then, create a virtual host with `WSGIScriptAlias` pointing to the wsgi.py file. E.g.:
 
     <VirtualHost *:8080>
         ServerName api.wi.yourdomain.com
-        WSGIScriptAlias / /path/to/wiproj/wiproj/wsgi.py
-        ...
-    </VirtualHost>
-
-That's enough for the API. If you want the website too, it's some static files you can serve using a separate virtual host:
-
-    <VirtualHost *:8080>
-        ServerName wi.yourdomain.com
-        DocumentRoot /path/to/wiproj/apps/webhookinbox/html
+        WSGIScriptAlias / /path/to/wi/projects/api/wp_api/wsgi.py
         ...
     </VirtualHost>
 
@@ -92,12 +86,12 @@ Ensure Pushpin's `routes` file points to the port Apache is listening on:
 Finally, have cleanup.py scheduled to run periodically. It needs to be executed within a django context. The easiest way to do this is to create a wrapper shell script:
 
     #!/bin/sh
-    export DJANGO_SETTINGS_MODULE="wiproj.settings"
-    export PYTHONPATH=/path/to/wiproj
+    export DJANGO_SETTINGS_MODULE="wi_api.settings"
+    export PYTHONPATH=/path/to/wi/projects/api
     python $*
 
 Supposing the above script is named djrun.sh, then you could set up a cron entry to run every minute:
 
     * * * * * /path/to/djrun.sh /path/to/cleanup.py >/dev/null 2>&1
- 
-That should do it.
+
+That's enough for the API. If you want the website too, set up the webhookinbox.website app somewhere.
