@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import patterns, url
 
-urlpatterns = patterns('webhookinbox.views',
+urlpatterns = patterns('webhookinbox.api.views',
 	url(r'^$', 'root'),
 	url(r'^create/$', 'create'),
 	url(r'^i/(?P<inbox_id>[^/]+)/$', 'inbox'),
