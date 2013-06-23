@@ -37,7 +37,7 @@ First, create a Django project and put the app inside:
 
     mkdir -p wi/projects wi/apps
     cd wi/projects
-    django-startproject wi_api
+    django-admin startproject wi_api
     mv wi_api api
     cd ../apps
     git clone git://github.com/fanout/webhookinbox.git
@@ -51,6 +51,14 @@ Edit your settings.py so that Django knows how to find the app, by including som
     sys.path.insert(0, os.path.join(PROJECT_ROOT, "../../../apps"))
 
 Then add 'webhookinbox.api' to your INSTALLED_APPS. Also, make sure CsrfViewMiddleware is disabled (comment it out).
+
+Edit your urls.py to route to the app:
+
+    from django.conf.urls.defaults import patterns, include, url
+
+    urlpatterns = patterns('',
+        url(r'', include('webhookinbox.api.urls')),
+    )
 
 Additionally, set GRIP_PROXIES:
 
