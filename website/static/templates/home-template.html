@@ -1,0 +1,13 @@
+<div>Welcome to WebHookInbox.</div>
+
+<div ng-show="!error">
+    <button ng-click="create()" ng-disabled="creating" class="btn btn-large btn-primary"><i class="icon-inbox icon-white"></i> Create New Inbox</button>
+
+    <div ng-show="creating">
+        Creating ...
+    </div>
+</div>
+
+<div ng-show="error">
+    There has been an error creating an inbox.  Please reload the page and try again.
+</div>

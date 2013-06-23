@@ -2,24 +2,7 @@ var API_ENDPOINT = Fanout.WebHookInboxViewer.config.apiEndpoint;
 var MAX_RETRIES = 2;
 var MAX_RESULTS = 3;
 
-var WebHookInboxViewer = angular.module('WebHookInboxViewer', ['ui.bootstrap']);
-
-WebHookInboxViewer.config(function($routeProvider, $locationProvider) {
-    $locationProvider.html5Mode(true).hashPrefix('!');
-    
-    $routeProvider
-        .when("/", {
-            templateUrl: "home-template.html",
-            controller: "HomeCtrl"
-        })
-        .when("/view/:webHookId", {
-            templateUrl: "webHookinbox-template.html",
-            controller: "WebHookInboxCtrl"
-        })
-        .otherwise({
-            redirectUrl: "/"
-        });
-});
+var WebHookInboxViewer = angular.module('WebHookInboxViewer', []);
 
 WebHookInboxViewer.factory("Pollymer", function($q, $rootScope) {
     var count = 0;
@@ -68,11 +51,11 @@ WebHookInboxViewer.factory("Pollymer", function($q, $rootScope) {
     }
 });
 
-WebHookInboxViewer.controller("HomeCtrl", function ($scope, $location, Pollymer) {
+WebHookInboxViewer.controller("HomeCtrl", function ($scope, $window, Pollymer) {
     $scope.webHookId = "";
     
     var openInbox = function(id) {
-        $location.url("/view/" + id);
+        $window.location.href = "/view/" + id;
     };
     
     $scope.create = function() {
@@ -93,31 +76,11 @@ WebHookInboxViewer.controller("HomeCtrl", function ($scope, $location, Pollymer)
     };
 });
 
-WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $window, $route, Pollymer) {
+WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $window, $route, Pollymer) {
 
     $scope.inbox = { updatesCursor: null, historyCursor: null, newestId: null, entries: [], fetching: false, pollingUpdates: false, error: false };
 
-    var webHookId = $route.current.params.webHookId;
-
-    var form = angular.element($window.document.getElementById("webHookSelectForm"));
-    var webHookIdField = angular.element(form[0].elements['webHookId']);
-    form.bind('submit', function(e) {
-        var id = webHookIdField.val();
-        if (id != webHookId) {
-            $location.url("/view/" + id);
-            $scope.$apply();
-        }
-        e.preventDefault();
-    });
-
-    webHookIdField.val(webHookId);
-    webHookIdField.bind('focus', function(e) {
-        this.select();
-        angular.element(this).bind('mouseup', function(e) {
-            e.preventDefault();
-            angular.element(this).unbind('mouseup');
-        });
-    });
+    var webHookId = $window.serverData.webhookId;
 
     var handlePastFetch = function(url) {
         $scope.inbox.fetching = true;
@@ -215,7 +178,7 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $location, $
             var pollymer = Pollymer.create();
             var poll = pollymer.start("DELETE", url);
             poll.then(function(result) {
-                $location.url("/");
+                $window.location.href = "/";
             }, function(reason) {
                 $window.alert("There was a problem deleting the inbox.");
             });

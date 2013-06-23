@@ -1,0 +1,72 @@
+<div class="location">
+    <div>
+        <a href="/">Home Page</a>
+    </div>
+
+    <div ng-show="webHookEndpoint.length > 0">
+        Current Webhook Endpoint: <a href="{{webHookEndpoint}}" target="_blank">{{webHookEndpoint}}</a>
+
+        <button class="btn btn-mini btn-danger" ng-click="delete()"><i class="icon-trash icon-white"></i> Delete</button>
+    </div>
+</div>
+
+<div ng-show="!inbox.error">
+    <div ng-show="inbox.pollingUpdates">
+        Listening for updates...
+    </div>
+
+    <div ng-show="inbox.entries.length > 0">
+        <div ng-repeat="entry in inbox.entries" ng-animate=" 'entry-animate' " class="inbox-entry">
+            <div class="entry-id">Id: {{entry.id}}</div>
+            <div class="entry-main">
+                <div class="entry-method">{{entry.method}}</div>
+                <div class="entry-path">{{entry.path}}</div>
+            </div>
+            <div class="entry-body">
+                <div class="entry-type-item" ng-show="entry.type">
+                    <div class="entry-key">Type:</div>
+                    <div class="entry-value">{{entry.type}}</div>
+                </div>
+                <div class="entry-type-query" ng-show="entry.query">
+                    <div class="entry-key">Query:</div>
+                    <div class="entry-value">{{entry.query}}</div>
+                </div>
+                <div class="entry-type-body" ng-show="entry.body">
+                    <div class="entry-key">Body:</div>
+                    <div class="entry-value">{{entry.body}}</div>
+                </div>
+            </div>
+            <div ng-show="entry.headers.length > 0" class="entry-headers">
+                <div ng-repeat="header in entry.headers" class="entry-header-item">
+                    <div class="entry-key">
+                        {{header[0]}}
+                    </div>
+                    <div class="entry-value">
+                        {{header[1]}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ng-show="inbox.fetching">
+        Checking inbox...
+    </div>
+
+    <div ng-show="!inbox.fetching && inbox.entries.length == 0">
+        The inbox is empty.
+    </div>
+
+    <div ng-show="!inbox.fetching && inbox.historyCursor != null && inbox.historyCursor >= 0">
+        <button ng-click="history()" class="btn btn-mini">Show past entries</button>
+    </div>
+</div>
+
+<div ng-show="inbox.error">
+    <div>
+        There has been an error with the inbox.  It probably does not exist.
+    </div>
+    <div>
+        Enter a different inbox ID, or <a href="/">return to the home page</a> to create a new inbox.
+    </div>
+</div>
