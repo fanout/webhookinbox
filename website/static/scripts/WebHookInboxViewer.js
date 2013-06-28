@@ -79,6 +79,7 @@ WebHookInboxViewer.controller("HomeCtrl", function ($scope, $window, Pollymer) {
 WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $window, $route, Pollymer) {
 
     $scope.inbox = { updatesCursor: null, historyCursor: null, newestId: null, entries: [], fetching: false, pollingUpdates: false, error: false };
+    $scope.webHookEndpoint = "";
 
     var webHookId = $window.serverData.webhookId;
 
@@ -164,6 +165,13 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $window, $ro
             var id = ("result" in result && "items" in result.result && result.result.items.length) ? result.result.items[0].id : null;
             longPoll(id);
         });
+    };
+
+    $scope.webHookInboxUrl = function() {
+        if ($scope.webHookEndpoint.length == 0) {
+            return "";
+        }
+        return $scope.webHookEndpoint + "in/";
     };
 
     $scope.$on("$routeChangeStart", function() {
