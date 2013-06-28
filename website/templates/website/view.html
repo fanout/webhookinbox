@@ -15,13 +15,26 @@
     </script>
 </head>
 <body>
-<div class="other">
-    <a href="/docs">API</a>
-    <a href="/about">About</a>
-    <a href="/contact">Contact</a>
+
+<div class="wi-viewer">
+
+<div class="header container">
+    <div class="links">
+        <a href="/docs">API</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+    </div>
 </div>
 
 <div ng-app="WebHookInboxViewer" ng-controller="WebHookInboxCtrl" ng-include="'/static/templates/view-template.html'">
+</div>
+
+<div class="footer container">
+    <div class="message">
+        Inspired by Requestbin, &copy;2013 Fanout, Inc.
+    </div>
+</div>
+
 </div>
 
 </body>

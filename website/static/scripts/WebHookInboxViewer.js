@@ -82,6 +82,11 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $window, $ro
 
     var webHookId = $window.serverData.webhookId;
 
+    var itemToViewModel = function(item) {
+        item.dateTime = Date.parse(item.created);
+        return item;
+    };
+
     var handlePastFetch = function(url) {
         $scope.inbox.fetching = true;
         var pollymer = Pollymer.create();
@@ -97,7 +102,7 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $window, $ro
                 $scope.inbox.historyCursor = -1;
             }
             for(var i = 0; i < items.length; i++) {
-                $scope.inbox.entries.push(items[i]);
+                $scope.inbox.entries.push(itemToViewModel(items[i]));
             }
         }, function() {
             $scope.inbox.error = true;
@@ -128,7 +133,7 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $window, $ro
             $scope.inbox.updatesCursor = result.result.last_cursor;
             var items = result.result.items;
             for(var i = 0; i < items.length; i++) {
-                $scope.inbox.entries.unshift(items[i]);
+                $scope.inbox.entries.unshift(itemToViewModel(items[i]));
             }
         });
         poll.then(function() {
@@ -171,19 +176,11 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $window, $ro
         // History get
         handlePastFetch(url);
     };
-    
-    $scope.delete = function() {
-        if($window.confirm("Really delete this inbox?\nThis cannot be undone.")) {
-            var url = API_ENDPOINT + "i/" + webHookId + "/";
-            var pollymer = Pollymer.create();
-            var poll = pollymer.start("DELETE", url);
-            poll.then(function(result) {
-                $window.location.href = "/";
-            }, function(reason) {
-                $window.alert("There was a problem deleting the inbox.");
-            });
-        }
+
+    $scope.copy = function() {
+        var endPoint = $scope.webHookEndpoint;
+        // No way to do this using pure javascript.
     };
-    
+
     initial();
 });

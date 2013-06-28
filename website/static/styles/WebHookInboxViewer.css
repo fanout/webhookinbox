@@ -4,9 +4,61 @@ html {
     box-sizing:  border-box;
 }
 
+body {
+    margin: 0;
+    padding: 0;
+    font: 12px Helvetica,Arial;
+}
+
+a {
+    text-decoration: none;
+}
+
+.container {
+    padding: 0 40px;
+}
+
+.wi-viewer {
+    min-width: 960px;
+}
+
+.header {
+    height: 80px;
+}
+
+.header .links {
+    font-size: 11px;
+    font-weight: bold;
+    text-align: right;
+}
+
+.target {
+    height: 70px;
+}
+
+.target > div {
+    display: inline-block;
+}
+
+.target-info .label {
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.target-info a {
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.target .target-copy button {
+    width: 130px;
+    height: 32px;
+    font-family: Helvetica,Arial;
+    font-size: 13px;
+    font-weight: bold;
+}
+
 .inbox-entry {
-    border: 1px solid black;
-    padding: 6px;
     position: relative;
 
     -webkit-transition:all ease-in-out 0.2s;
@@ -27,16 +79,100 @@ html {
     line-height: 100%;
 }
 
-
 .entry-method,
 .entry-path {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: bold;
     display: inline-block;
 }
 
-.entry-key {
+.entry-id {
+    font-size: 11px;
+    font-weight: bold;
+    float: right;
+}
+
+.entry-label {
+    height: 30px;
+    background-color: #dcdee0;
+    border-top: 1px solid #f0f1f2;
+    border-bottom: 1px solid #c4c6c7;
+}
+
+.entry-content {
+    background-color: #f8f8f8;
+    border-top: 1px solid #ffffff;
+    border-bottom: 1px solid #aaaaaa;
+}
+
+.entry-meta, .entry-body {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.entry-meta {
+    float: left;
+    width: 189px;
+    min-height: 100px;
+}
+
+.entry-item {
+    margin-bottom: 10px;
+}
+
+.item-label {
     width: 150px;
     float: left;
 }
+.item-value {
+    margin-left: 150px;
+}
 
+.entry-item .label {
+    font-size: 9px;
+    line-height: 11px;
+    font-weight: bold;
+    color: #979aa1;
+}
+.entry-item .value {
+    font-size: 13px;
+    color: #46484c;
+}
+
+.entry-body {
+    margin-left: 189px;
+    border-left: 1px solid #dddddd;
+}
+.entry-inner-body {
+    min-height: 100px;
+    padding-left: 20px;
+    border-left: 1px solid #ffffff;
+}
+
+.entry-history {
+    height: 30px;
+}
+
+.entry-history .darr-l {
+    float: left;
+}
+
+.entry-history .darr-r {
+    float: right;
+}
+
+.entry-history .show-more {
+    font-size: 11px;
+    font-weight: bold;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.footer {
+    height: 100px;
+}
+
+.footer .message {
+    font-size: 13px;
+    text-align: center;
+}
