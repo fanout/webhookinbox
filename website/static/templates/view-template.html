@@ -28,11 +28,12 @@
     <div ng-show="inbox.entries.length > 0">
         <div ng-repeat="entry in inbox.entries" ng-animate=" 'entry-animate' " class="inbox-entry">
             <div class="entry-label container">
-                <div class="entry-main">
-                    <div class="entry-method">{{entry.method}}</div>
-                    <div class="entry-path">{{entry.path}}</div>
+                <div class="row">
+                    <div class="entry-main">
+                        {{entry.method}} {{entry.path}}
+                    </div>
+                    <div class="entry-id">ID: {{entry.id}}</div>
                 </div>
-                <div class="entry-id">ID: {{entry.id}}</div>
             </div>
             <div class="entry-content container">
                 <div class="entry-meta">
@@ -55,10 +56,6 @@
                 </div>
                 <div class="entry-body">
                     <div class="entry-inner-body">
-                        <div class="entry-item" ng-show="entry.type">
-                            <div class="label">TYPE:</div>
-                            <div class="value">{{entry.type}}</div>
-                        </div>
                         <div class="entry-item" ng-show="entry.body">
                             <div class="label">POST CONTENT:</div>
                             <div class="value">{{entry.body}}</div>
@@ -77,6 +74,9 @@
                                     {{header[1]}}
                                 </div>
                             </div>
+                        </div>
+                        <div ng-show="entry.type == 'hub-verify'" class="entry-type-hub-verify">
+                            <img src="/static/images/rss-icon.png" /> This PubSubHubbub verify request has been granted.
                         </div>
                     </div>
                 </div>
