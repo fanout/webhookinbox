@@ -179,6 +179,13 @@ def inbox(req, inbox_id):
 		except:
 			return HttpResponse('Service Unavailable\n', status=503)
 
+		# we'll push a 404 to any long polls because we're that cool
+		hr_headers = dict()
+		hr_headers['Content-Type'] = 'text/html'
+		hr_body = 'Not Found\n'
+
+		pub.publish(grip_prefix + 'inbox-' + inbox_id, None, None, hr_headers, hr_body, code=404)
+
 		return HttpResponse('Deleted\n')
 	else:
 		return HttpResponseNotAllowed(['GET', 'DELETE'])
