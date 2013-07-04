@@ -11,7 +11,7 @@ All HTTP API calls are made to ``api.webhookinbox.com``.
 Inboxes
 -------
 
-Inboxes store a list of request items. Each inbox has a unique id and URL. Requests made against an inbox's URL are captured and the data is stored in the inbox. WebhookInbox responds to HTTP requests automatically, using status code 200.
+Inboxes store a list of request items. Each inbox has a unique id and target URL. Requests made against an inbox's target URL are captured and the data is stored in the inbox. WebhookInbox responds to HTTP requests automatically, using status code 200.
 
 Inboxes have a limit of 100 items. If many requests are received in rapid succession, then this limit is raised to a larger value to ensure clients monitoring the inbox don't miss any data. However, once traffic dies down then items will be truncated back to 100.
 
@@ -55,13 +55,13 @@ For example, an item in the inbox might look like::
 Query strings
 -------------
 
-Requests made to an inbox's URL can use any value for the query part. For example, if there exists an inbox with id ``vJ2lWRKY`` and URL ``http://api.webhookinbox.com/i/vJ2lWRKY/``, then requesting any of the following URLs would cause the data to be captured into the same inbox:
+Requests made to an inbox's target URL can use any value for the query part. For example, if there exists an inbox with id ``vJ2lWRKY`` and target URL ``http://api.webhookinbox.com/i/vJ2lWRKY/in/``, then requesting any of the following URLs would cause the data to be captured into the same inbox:
 
-  * ``http://api.webhookinbox.com/i/vJ2lWRKY/``
-  * ``http://api.webhookinbox.com/i/vJ2lWRKY/?hello``
-  * ``http://api.webhookinbox.com/i/vJ2lWRKY/?a=1&b=2``
+  * ``http://api.webhookinbox.com/i/vJ2lWRKY/in/``
+  * ``http://api.webhookinbox.com/i/vJ2lWRKY/in/?hello``
+  * ``http://api.webhookinbox.com/i/vJ2lWRKY/in/?a=1&b=2``
 
-By varying the query string, there can be an unlimited number of unique URLs that all funnel into the same inbox. If the inbox URL is being registered/subscribed to several HTTP callback services, then a different query part can be used for each subscription. This way, the ``query`` field of items in the inbox can be used to differentiate which requests came from which services.
+By varying the query string, there can be an unlimited number of unique URLs that all funnel into the same inbox. If the inbox target URL is being registered/subscribed to several HTTP callback services, then a different query part can be used for each subscription. This way, the ``query`` field of items in the inbox can be used to differentiate which requests came from which services.
 
 Expiration
 ----------
@@ -73,7 +73,7 @@ Inboxes may also be explicitly destroyed without waiting for expiration.
 PubSubHubbub
 ------------
 
-Normally, when a request is made to an inbox URL, WebhookInbox responds with the string "Ok". However, if the request is detected to be a PubSubHubbub verification request, then WebhookInbox will respond appropriately such that the verification succeeds. This means it is possible to use an inbox URL as the callback of a PubSubHubbub subscription request, and receive feed updates into the inbox.
+Normally, when a request is made to an inbox target URL, WebhookInbox responds with the string "Ok". However, if the request is detected to be a PubSubHubbub verification request, then WebhookInbox will respond appropriately such that the verification succeeds. This means it is possible to use an inbox target URL as the callback of a PubSubHubbub subscription request, and receive feed updates into the inbox.
 
 Creating, refreshing, destroying
 --------------------------------
@@ -89,11 +89,11 @@ This will yield a response such as::
 
   {
     "id": "vJ2lWRKY",
-    "target": "http://api.webhookinbox.com/i/vJ2lWRKY/",
+    "base_url": "http://api.webhookinbox.com/i/vJ2lWRKY/",
     "ttl": 3600
   }
 
-The ``target`` field is the inbox URL. Requests made to this URL will have their data captured and stored in the inbox. The ``ttl`` value specifies a duration in seconds, so in this example the inbox has a TTL of 1 hour.
+The ``base_url`` field is the URL of the resource representing the inbox. Other endpoints related to the inbox are suffixed to the base URL. Notably, the inbox target URL is the base URL suffixed with ``in/``. Requests made to the target URL will have their data captured and stored in the inbox. The ``ttl`` value specifies a duration in seconds, so in this example the inbox has a TTL of 1 hour.
 
 Optionally, you can ask for a specific TTL by providing one as a post parameter::
 
@@ -109,7 +109,7 @@ The service should then honor your request as such::
 
   {
     "id": "vJ2lWRKY",
-    "target": "http://api.webhookinbox.com/i/vJ2lWRKY/",
+    "base_url": "http://api.webhookinbox.com/i/vJ2lWRKY/",
     "ttl": 300
   }
 
@@ -121,7 +121,7 @@ The server will respond with a status of 200 if the inbox was successfully refre
 
 Inboxes are also implicitly refreshed when fetching items. See the `Retrieving items`_ section.
 
-To destroy an inbox, make a DELETE request to the inbox URL::
+To destroy an inbox, make a DELETE request to the inbox base URL::
 
   DELETE /i/vJ2lWRKY/ HTTP/1.1
 
