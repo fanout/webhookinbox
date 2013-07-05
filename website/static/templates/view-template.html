@@ -12,16 +12,14 @@
         <button ng-click="copy()">copy to clipboard</button>
     </div>
     -->
-    <!--
     <div class="target-autoupdates">
         <div class="label">
-            <a href="#" ng-click="toggleAuto()">turn {{ autoUpdatesEnabled ? "OFF" : "ON" }} auto updates</a>
+            <a href="#" ng-click="toggleAuto()">turn {{ inbox.liveUpdates ? "OFF" : "ON" }} auto updates</a>
         </div>
-        <div class="count">
-            {{ updatesCount }}
-        </div>
+        <a href="#" ng-show="inbox.pendingEntries.length > 0" class="count" ng-click="flushPendingEntries()">
+            {{ inbox.pendingEntries.length }}
+        </a>
     </div>
-    -->
 </div>
 
 <div ng-show="!inbox.error">

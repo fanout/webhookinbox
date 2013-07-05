@@ -78,7 +78,7 @@ WebHookInboxViewer.controller("HomeCtrl", function ($scope, $window, Pollymer) {
 
 WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $window, $route, Pollymer) {
 
-    $scope.inbox = { updatesCursor: null, historyCursor: null, newestId: null, entries: [], fetching: false, pollingUpdates: false, error: false };
+    $scope.inbox = { updatesCursor: null, historyCursor: null, newestId: null, entries: [], pendingEntries: [], liveUpdates: true, fetching: false, pollingUpdates: false, error: false };
     $scope.webHookEndpoint = "";
 
     var webHookId = $window.serverData.webhookId;
@@ -111,6 +111,22 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $window, $ro
         return poll;
     };
 
+    $scope.toggleAuto = function() {
+        $scope.inbox.liveUpdates = !$scope.inbox.liveUpdates;
+        $scope.checkPendingEntries();
+    }
+
+    $scope.checkPendingEntries = function() {
+        if ($scope.inbox.liveUpdates) {
+            $scope.flushPendingEntries();
+        }
+    };
+
+    $scope.flushPendingEntries = function() {
+        $scope.inbox.entries = $scope.inbox.pendingEntries.concat($scope.inbox.entries);
+        $scope.inbox.pendingEntries = [];
+    };
+
     var longPollymer = null;
     var longPoll = function(id) {
         var url = API_ENDPOINT + "i/" + webHookId + "/items/?order=created";
@@ -134,8 +150,11 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $window, $ro
             $scope.inbox.updatesCursor = result.result.last_cursor;
             var items = result.result.items;
             for(var i = 0; i < items.length; i++) {
-                $scope.inbox.entries.unshift(itemToViewModel(items[i]));
+                $scope.inbox.pendingEntries.unshift(itemToViewModel(items[i]));
             }
+        });
+        poll.then(function() {
+            $scope.checkPendingEntries();
         });
         poll.then(function() {
             longPoll();
