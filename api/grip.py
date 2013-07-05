@@ -20,7 +20,7 @@ class Publisher(object):
 		self.proxies = list()
 		self.pubs = None
 
-	def publish(self, channel, id, prev_id, rheaders=None, rbody=None, sbody=None):
+	def publish(self, channel, id, prev_id, rheaders=None, rbody=None, sbody=None, code=None):
 		if len(self.proxies) < 1:
 			return
 
@@ -34,7 +34,7 @@ class Publisher(object):
 
 		formats = list()
 		if rbody is not None:
-			formats.append(gripcontrol.HttpResponseFormat(headers=rheaders, body=rbody))
+			formats.append(gripcontrol.HttpResponseFormat(code=code, headers=rheaders, body=rbody))
 		if sbody is not None:
 			formats.append(gripcontrol.HttpStreamFormat(sbody))
 
