@@ -1,5 +1,4 @@
 var API_ENDPOINT = Fanout.WebHookInboxViewer.config.apiEndpoint;
-var MAX_RETRIES = 2;
 var MAX_RESULTS = 3;
 
 var WebHookInboxViewer = angular.module('WebHookInboxViewer', []);
@@ -8,7 +7,8 @@ WebHookInboxViewer.factory("Pollymer", function($q, $rootScope) {
     var count = 0;
     return {
         create: function() {
-            var req = new Pollymer.Request({maxTries: MAX_RETRIES});
+            // -1 maxTries indicates infinite calls.
+            var req = new Pollymer.Request({maxTries: -1, errorCodes:'500,502-599'});
             var id = ++count;
             console.log("Pollymer " + id + " created");
             return {
