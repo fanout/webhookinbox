@@ -207,6 +207,7 @@ class RedisOps(object):
 					pipe.watch(key)
 					pipe.watch(items_key)
 					pipe.watch(items_baseindex_key)
+					pipe.watch(items_time_key)
 					if not pipe.exists(key):
 						raise ObjectDoesNotExist('No such inbox: %s' + id)
 					end_pos = pipe.llen(items_key)
