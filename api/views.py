@@ -1,5 +1,6 @@
 from base64 import b64encode
 import datetime
+import copy
 import json
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseNotAllowed
@@ -118,8 +119,12 @@ def _req_to_item(req):
 	else:
 		ip_address = req.META['REMOTE_ADDR']
 	item['ip_address'] = ip_address
-	item['created'] = datetime.datetime.utcnow().isoformat()
 	return item
+
+def _convert_item(item):
+	out = copy.deepcopy(item)
+	out['created'] = datetime.datetime.fromtimestamp(item['created']).isoformat()
+	return out
 
 def root(req):
 	return HttpResponseNotFound('Not Found\n')
@@ -229,7 +234,7 @@ def hit(req, inbox_id):
 		item['type'] = 'normal'
 
 	try:
-		item_id, prev_id = db.inbox_append_item(inbox_id, item)
+		item_id, prev_id, item_created = db.inbox_append_item(inbox_id, item)
 		db.inbox_clear_expired_items(inbox_id)
 	except redis_ops.InvalidId:
 		return HttpResponseBadRequest('Bad Request: Invalid id\n')
@@ -239,6 +244,9 @@ def hit(req, inbox_id):
 		return HttpResponse('Service Unavailable\n', status=503)
 
 	item['id'] = item_id
+	item['created'] = item_created
+
+	item = _convert_item(item)
 
 	hr_headers = dict()
 	hr_headers['Content-Type'] = 'application/json'
@@ -316,7 +324,10 @@ def items(req, inbox_id):
 			if len(items) > 0:
 				out = dict()
 				out['last_cursor'] = last_id
-				out['items'] = items
+				out_items = list()
+				for i in items:
+					out_items.append(_convert_item(i))
+				out['items'] = out_items
 				return HttpResponse(json.dumps(out) + '\n', content_type='application/json')
 
 			if not grip.is_proxied(req, grip_proxies):
@@ -345,7 +356,10 @@ def items(req, inbox_id):
 			out = dict()
 			if not eof and last_id:
 				out['last_cursor'] = last_id
-			out['items'] = items
+			out_items = list()
+			for i in items:
+				out_items.append(_convert_item(i))
+			out['items'] = out_items
 			return HttpResponse(json.dumps(out) + '\n', content_type='application/json')
 	else:
 		return HttpResponseNotAllowed(['GET'])

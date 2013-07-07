@@ -81,7 +81,6 @@ class RedisOps(object):
 		exp_key = self.prefix + 'inbox-exp'
 		items_key = self.prefix + 'inbox-items-' + id
 		items_baseindex_key = self.prefix + 'inbox-items-baseindex-' + id
-		items_time_key = self.prefix + 'inbox-items-time-' + id
 		while True:
 			with r.pipeline() as pipe:
 				try:
@@ -94,7 +93,6 @@ class RedisOps(object):
 					pipe.zrem(exp_key, id)
 					pipe.delete(items_key)
 					pipe.delete(items_baseindex_key)
-					pipe.delete(items_time_key)
 					pipe.execute()
 					break
 				except redis.WatchError:
@@ -166,7 +164,6 @@ class RedisOps(object):
 					key = self.prefix + 'inbox-' + id
 					items_key = self.prefix + 'inbox-items-' + id
 					items_baseindex_key = self.prefix + 'inbox-items-baseindex-' + id
-					items_time_key = self.prefix + 'inbox-items-time-' + id
 
 					val = json.loads(pipe.get(key))
 
@@ -176,7 +173,6 @@ class RedisOps(object):
 					pipe.zrem(exp_key, id)
 					pipe.delete(items_key)
 					pipe.delete(items_baseindex_key)
-					pipe.delete(items_time_key)
 					pipe.execute()
 
 					val['id'] = id
@@ -192,39 +188,31 @@ class RedisOps(object):
 		set_key = self.prefix + 'inbox'
 		return set(r.smembers(set_key))
 
-	# return (item id, prev_id)
+	# return (item id, prev_id, created)
 	def inbox_append_item(self, id, item):
 		RedisOps._validate_id(id)
 		r = self._get_redis()
 		key = self.prefix + 'inbox-' + id
 		items_key = self.prefix + 'inbox-items-' + id
 		items_baseindex_key = self.prefix + 'inbox-items-baseindex-' + id
-		items_time_key = self.prefix + 'inbox-items-time-' + id
-		now = RedisOps._timestamp_utcnow()
 		while True:
 			with r.pipeline() as pipe:
 				try:
 					pipe.watch(key)
 					pipe.watch(items_key)
 					pipe.watch(items_baseindex_key)
-					pipe.watch(items_time_key)
 					if not pipe.exists(key):
 						raise ObjectDoesNotExist('No such inbox: %s' + id)
 					end_pos = pipe.llen(items_key)
-					baseindex = pipe.get(items_baseindex_key)
-					if baseindex is not None:
-						baseindex = int(baseindex)
-					else:
-						baseindex = 0
+					item['created'] = RedisOps._timestamp_utcnow()
 					pipe.multi()
 					pipe.rpush(items_key, json.dumps(item))
-					pipe.zadd(items_time_key, str(baseindex + end_pos), now)
 					pipe.execute()
 					prev_pos = end_pos - 1
 					if prev_pos != -1:
-						return (str(end_pos), str(prev_pos))
+						return (str(end_pos), str(prev_pos), item['created'])
 					else:
-						return (str(end_pos), '')
+						return (str(end_pos), '', item['created'])
 				except redis.WatchError:
 					continue
 
@@ -370,7 +358,6 @@ class RedisOps(object):
 		r = self._get_redis()
 		items_key = self.prefix + 'inbox-items-' + id
 		items_baseindex_key = self.prefix + 'inbox-items-baseindex-' + id
-		items_time_key = self.prefix + 'inbox-items-time-' + id
 		now = RedisOps._timestamp_utcnow()
 		total = 0
 		while True:
@@ -378,27 +365,17 @@ class RedisOps(object):
 				try:
 					pipe.watch(items_key)
 					pipe.watch(items_baseindex_key)
-					pipe.watch(items_time_key)
 
-					items = pipe.zrange(items_time_key, 0, 0, withscores=True)
-					if len(items) == 0:
+					items = pipe.lrange(items_key, 0, 0)
+					if not items:
 						break
 
-					item_id = items[0][0]
-					item_time = int(items[0][1])
+					item = json.loads(items[0])
 
 					count = pipe.llen(items_key)
 
-					baseindex = pipe.get(items_baseindex_key)
-					if baseindex is not None:
-						baseindex = int(baseindex)
-					else:
-						baseindex = 0
-
-					item_pos = int(item_id) - baseindex
-
-					# we'll always be looking at the oldest item
-					assert(item_pos == 0)
+					item_pos = 0
+					item_time = item['created']
 
 					expire = False
 					if item_time > now - self.item_burst_time:
@@ -414,7 +391,6 @@ class RedisOps(object):
 					pipe.multi()
 					pipe.lpop(items_key)
 					pipe.incr(items_baseindex_key)
-					pipe.zrem(items_time_key, item_id)
 					pipe.execute()
 
 					total += 1
