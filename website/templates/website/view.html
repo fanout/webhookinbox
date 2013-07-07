@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>WebHook Inbox Viewer</title>
-    <link href="/static/styles/WebHookInboxViewer.css" rel="stylesheet" />
+    <title>WebhookInbox Viewer</title>
+    <link rel="shortcut icon" href="/static/images/favicon.ico" />
+    <link href="/static/styles/WebhookInboxViewer.css" rel="stylesheet" />
     <!--[if lte IE 8]>
     <script src="/static/scripts/json2.js"></script>
     <![endif]-->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"></script>
     <script src="/static/scripts/pollymer-1.0.0.js"></script>
-    <script src="/static/scripts/WebHookInboxViewer.config.js"></script>
-    <script src="/static/scripts/WebHookInboxViewer.js"></script>
+    <script src="/static/scripts/WebhookInboxViewer.config.js"></script>
+    <script src="/static/scripts/WebhookInboxViewer.js"></script>
     <script>
         window.serverData = { webhookId: "{{ inbox_id }}" };
     </script>
@@ -23,19 +24,21 @@
             <a href="/"><img src="/static/images/logo.png" /></a>
         </div>
         <div class="links">
-            <a href="/docs">API</a>
-            <a href="/about">About</a>
-            <a href="/contact">Contact</a>
+            <a href="/docs/">API</a>
+            <a href="/about/">About</a>
+            <a href="/contact/">Contact</a>
         </div>
     </div>
 </div>
 
-<div ng-app="WebHookInboxViewer" ng-controller="WebHookInboxCtrl" ng-include="'/static/templates/view-template.html'">
+<div ng-app="WebhookInboxViewer" ng-controller="WebhookInboxCtrl" ng-include="'/static/templates/view-template.html'">
 </div>
 
 <div class="footer container">
-    <div class="message">
-        Inspired by Requestbin, &copy;2013 Fanout, Inc.
+    <div class="row">
+        <div class="message">
+            Inspired by Requestbin, &copy;2013 Fanout, Inc.
+        </div>
     </div>
 </div>
 

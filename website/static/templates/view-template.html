@@ -1,30 +1,34 @@
 <div class="target container">
-    <div class="target-info" ng-show="webHookEndpoint.length > 0">
-        <div class="label">
-            INBOX TARGET URL:
+    <div class="row">
+        <div class="target-info" ng-show="webhookEndpoint.length > 0">
+            <div class="label">
+                INBOX TARGET URL:
+            </div>
+            <div class="url">
+                <a href="{{webhookInboxUrl()}}" target="_blank">{{webhookInboxUrl()}}</a>
+            </div>
         </div>
-        <div class="url">
-            <a href="{{webHookInboxUrl()}}" target="_blank">{{webHookInboxUrl()}}</a>
+        <!--
+        <div class="target-copy" ng-show="webhookEndpoint.length > 0">
+            <button ng-click="copy()">copy to clipboard</button>
         </div>
-    </div>
-    <!--
-    <div class="target-copy" ng-show="webHookEndpoint.length > 0">
-        <button ng-click="copy()">copy to clipboard</button>
-    </div>
-    -->
-    <div class="target-autoupdates">
-        <div class="label">
-            <a href="#" ng-click="toggleAuto()">turn {{ inbox.liveUpdates ? "OFF" : "ON" }} auto updates</a>
+        -->
+        <div class="target-autoupdates">
+            <div class="label" ng-class="inbox.liveUpdates ? 'label-off' : 'label-on'" ng-click="toggleAuto()">
+                turn {{ inbox.liveUpdates ? "OFF" : "ON" }} auto updates
+            </div>
+            <div class="count" ng-show="inbox.pendingEntries.length > 0" class="count" ng-click="flushPendingEntries()">
+                <div class="count-inner">
+                    {{ inbox.pendingEntries.length }}
+                </div>
+            </div>
         </div>
-        <a href="#" ng-show="inbox.pendingEntries.length > 0" class="count" ng-click="flushPendingEntries()">
-            {{ inbox.pendingEntries.length }}
-        </a>
     </div>
 </div>
 
 <div ng-show="!inbox.error">
     <div ng-show="inbox.entries.length > 0">
-        <div ng-repeat="entry in inbox.entries" ng-animate=" 'entry-animate' " class="inbox-entry">
+        <div ng-repeat="entry in inbox.entries" ng-animate="getAnimationType()" class="inbox-entry">
             <div class="entry-label container">
                 <div class="row">
                     <div class="entry-main">
@@ -63,8 +67,11 @@
                             <div class="value">{{entry.query}}</div>
                         </div>
                         <div ng-show="entry.headers.length > 0" class="entry-item">
-                            <div class="label">HEADERS:</div>
-                            <div ng-repeat="header in entry.headers" class="value">
+                            <div class="headers-label label" ng-click="entry.showHeaders = !entry.showHeaders">HEADERS
+                                <span ng-show="entry.showHeaders">&#x25b2;</span>
+                                <span ng-show="!entry.showHeaders">&#x25bc;</span>
+                            </div>
+                            <div ng-repeat="header in entry.headers" class="value" ng-show="entry.showHeaders">
                                 <div class="item-label">
                                     {{header[0]}}
                                 </div>
@@ -82,28 +89,40 @@
         </div>
     </div>
 
-    <div ng-show="inbox.fetching">
-        Checking inbox...
+    <div ng-show="inbox.fetching" class="status container">
+        <div class="row">
+            <div class="status-message">
+                <img src="/static/images/ajax-loader.gif" /> Checking inbox...
+            </div>
+        </div>
     </div>
 
-    <div ng-show="!inbox.fetching && inbox.entries.length == 0">
-        The inbox is empty.
+    <div ng-show="!inbox.fetching && inbox.entries.length == 0" class="status container">
+        <div class="row">
+            <div class="status-message">
+                The inbox is empty.
+            </div>
+        </div>
     </div>
 
-    <div ng-show="!inbox.fetching && inbox.historyCursor != null && inbox.historyCursor >= 0" class="entry-history container">
-        <div class="darr-l">v</div>
-        <div class="darr-r">v</div>
-        <div class="show-more">
-            <a href="#" ng-click="history()" class="btn btn-mini">show more</a>
+    <div ng-show="!inbox.fetching && inbox.historyCursor != null && inbox.historyCursor >= 0" class="entry-history container" ng-click="history()">
+        <div class="row">
+            <div class="darr-l"></div>
+            <div class="darr-r"></div>
+            <div class="show-more">show more</div>
         </div>
     </div>
 </div>
 
-<div ng-show="inbox.error">
-    <div>
-        There has been an error with the inbox.  It probably does not exist.
-    </div>
-    <div>
-        Enter a different inbox ID, or <a href="/">return to the home page</a> to create a new inbox.
+<div ng-show="inbox.error" class="error container">
+    <div class="row">
+        <div class="error-message">
+            <div>
+                There has been an error with the inbox.  It probably does not exist.
+            </div>
+            <div>
+                <a href="/">Return to the home page</a> to create a new inbox.
+            </div>
+        </div>
     </div>
 </div>
