@@ -24,6 +24,7 @@ a {
 
 .header {
     height: 80px;
+    background: url("/static/images/header-bg.png");
 }
 
 .container > .row {
@@ -47,26 +48,78 @@ a {
 
 .header .links > a {
     color: #9599a1;
-    text-shadow: 1px 1px 2px #888;
+    text-shadow: 1px 1px 2px #000;
     margin-left: 35px;
 }
 
 .target {
     height: 70px;
+    background: #585a67 url("/static/images/target-bg.png");
+    border-top: #71737e solid 1px;
+    border-bottom: #2a2c33 solid 1px;
 }
 
-.target > div {
-    display: inline-block;
+.target-info {
+    position: absolute;
+    top: 20px;
+    left: 0;
 }
 
 .target-info .label {
+    color: #9a9ca1;
+    text-shadow: 1px 1px 2px #000;
     font-size: 10px;
     font-weight: bold;
 }
 
 .target-info a {
+    color: #ced0d6;
+    text-shadow: 1px 1px 2px #000;
     font-size: 11px;
     font-weight: bold;
+}
+
+.target-autoupdates {
+    position: absolute;
+    top: 17px;
+    right: 0;
+    width: 200px;
+    height: 40px;
+    background: url("/static/images/bell-bg.png") no-repeat top right;
+}
+
+.target-autoupdates .label {
+    position: absolute;
+    top: 13px;
+    right: 40px;
+    color: black;
+    cursor: pointer;
+    font-family: Helvetica,Arial;
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 1px 1px #777;
+}
+
+.target-autoupdates .count {
+    position: absolute;
+    top: 10;
+    right: 0;
+    color: white;
+    background-color: #803fac;
+    border: 1px solid #602f87;
+    cursor: pointer;
+    -moz-border-radius: 1px;
+    -webkit-border-radius: 1px;
+    border-radius: 1px;
+}
+
+.target-autoupdates .count-inner {
+    border: 1px solid;
+    border-color: #af81cb #6f34a0 #8747b1 #8142ad;
+    padding: 1px 3px;
+    font-family: Helvetica,Arial;
+    font-size: 11px;
+    font-weight: normal;
 }
 
 .target .target-copy button {
