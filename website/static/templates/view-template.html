@@ -67,8 +67,11 @@
                             <div class="value">{{entry.query}}</div>
                         </div>
                         <div ng-show="entry.headers.length > 0" class="entry-item">
-                            <div class="label">HEADERS:</div>
-                            <div ng-repeat="header in entry.headers" class="value">
+                            <div class="headers-label label" ng-click="entry.showHeaders = !entry.showHeaders">HEADERS
+                                <span ng-show="entry.showHeaders">&#x25b2;</span>
+                                <span ng-show="!entry.showHeaders">&#x25bc;</span>
+                            </div>
+                            <div ng-repeat="header in entry.headers" class="value" ng-show="entry.showHeaders">
                                 <div class="item-label">
                                     {{header[0]}}
                                 </div>

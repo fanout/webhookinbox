@@ -216,6 +216,10 @@ a {
     color: #46484c;
 }
 
+.headers-label {
+    cursor: pointer;
+}
+
 .entry-body {
     margin-left: 189px;
     border-left: 1px solid #dddddd;
