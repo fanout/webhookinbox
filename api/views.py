@@ -123,7 +123,10 @@ def _req_to_item(req):
 
 def _convert_item(item):
 	out = copy.deepcopy(item)
-	out['created'] = datetime.datetime.fromtimestamp(item['created']).isoformat()
+	created = datetime.datetime.fromtimestamp(item['created']).isoformat()
+	if len(created) > 0 and created[-1] != 'Z':
+		created += 'Z'
+	out['created'] = created
 	return out
 
 def root(req):
