@@ -94,11 +94,11 @@
         The inbox is empty.
     </div>
 
-    <div ng-show="!inbox.fetching && inbox.historyCursor != null && inbox.historyCursor >= 0" class="entry-history container">
-        <div class="darr-l">v</div>
-        <div class="darr-r">v</div>
-        <div class="show-more">
-            <a href="#" ng-click="history()" class="btn btn-mini">show more</a>
+    <div ng-show="!inbox.fetching && inbox.historyCursor != null && inbox.historyCursor >= 0" class="entry-history container" ng-click="history()">
+        <div class="row">
+            <div class="darr-l"></div>
+            <div class="darr-r"></div>
+            <div class="show-more">show more</div>
         </div>
     </div>
 </div>

@@ -238,14 +238,24 @@ a {
 
 .entry-history {
     height: 30px;
+    background: url("/static/images/history-bg.png");
+    cursor: pointer;
+}
+
+.entry-history .darr-l,
+.entry-history .darr-r {
+    position: absolute;
+    background: url("/static/images/chevron.png");
+    width: 20px;
+    height: 30px;
 }
 
 .entry-history .darr-l {
-    float: left;
+    left: 0;
 }
 
 .entry-history .darr-r {
-    float: right;
+    right: 0;
 }
 
 .entry-history .show-more {
@@ -253,10 +263,16 @@ a {
     font-weight: bold;
     margin: 0 auto;
     text-align: center;
+    width: 100%;
+    position: absolute;
+    top: 8px;
+    color: #ced0d6;
+    text-shadow: 1px 1px 2px #000;
 }
 
 .footer {
     height: 100px;
+    background: url("/static/images/footer-bg.png");
 }
 
 .footer .message {
