@@ -83,6 +83,12 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
 
     var webhookId = $window.serverData.webhookId;
 
+    $scope.animationMode = "static";
+
+    $scope.getAnimationType = function() {
+        return "animate-" + $scope.animationMode;
+    };
+
     var itemToViewModel = function(item) {
         item.dateTime = Date.parse(item.created);
         return item;
@@ -103,7 +109,9 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
                 $scope.inbox.historyCursor = -1;
             }
             for(var i = 0; i < items.length; i++) {
-                $scope.inbox.entries.push(itemToViewModel(items[i]));
+                var entry = itemToViewModel(items[i]);
+                $scope.animationMode = "static";
+                $scope.inbox.entries.push(entry);
             }
         }, function() {
             $scope.inbox.error = true;
@@ -112,8 +120,8 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
     };
 
     $scope.toggleAuto = function() {
+        $scope.flushPendingEntries();
         $scope.inbox.liveUpdates = !$scope.inbox.liveUpdates;
-        $scope.checkPendingEntries();
     }
 
     $scope.checkPendingEntries = function() {
@@ -123,6 +131,7 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
     };
 
     $scope.flushPendingEntries = function() {
+        $scope.animationMode = $scope.inbox.liveUpdates ? "live" : "nonlive";
         $scope.inbox.entries = $scope.inbox.pendingEntries.concat($scope.inbox.entries);
         $scope.inbox.pendingEntries = [];
     };
@@ -150,7 +159,8 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
             $scope.inbox.updatesCursor = result.result.last_cursor;
             var items = result.result.items;
             for(var i = 0; i < items.length; i++) {
-                $scope.inbox.pendingEntries.unshift(itemToViewModel(items[i]));
+                var entry = itemToViewModel(items[i]);
+                $scope.inbox.pendingEntries.unshift(entry);
             }
         });
         poll.then(function() {

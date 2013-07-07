@@ -140,22 +140,28 @@ a {
 .inbox-entry {
     position: relative;
 
-    -webkit-transition:all ease-in-out 0.2s;
-    -moz-transition:all ease-in-out 0.2s;
-    -o-transition:all ease-in-out 0.2s;
-    transition:all ease-in-out 0.2s;
+    -webkit-transition:all ease-in-out 0.8s;
+    -moz-transition:all ease-in-out 0.8s;
+    -o-transition:all ease-in-out 0.8s;
+    transition:all ease-in-out 0.8s;
 }
 
-.entry-animate-enter {
-    left: 100px;
+.animate-live-enter {
+    left: 100%;
     opacity: 0.0;
-    line-height: 0;
 }
 
-.entry-animate-enter.entry-animate-enter-active {
+.animate-live-enter.animate-live-enter-active {
     left: 0px;
     opacity: 1.0;
-    line-height: 100%;
+}
+
+.animate-nonlive-enter {
+    opacity: 0.0;
+}
+
+.animate-nonlive-enter.animate-nonlive-enter-active {
+    opacity: 1.0;
 }
 
 .entry-main {

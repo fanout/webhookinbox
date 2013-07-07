@@ -28,7 +28,7 @@
 
 <div ng-show="!inbox.error">
     <div ng-show="inbox.entries.length > 0">
-        <div ng-repeat="entry in inbox.entries" ng-animate=" 'entry-animate' " class="inbox-entry">
+        <div ng-repeat="entry in inbox.entries" ng-animate="getAnimationType()" class="inbox-entry">
             <div class="entry-label container">
                 <div class="row">
                     <div class="entry-main">
