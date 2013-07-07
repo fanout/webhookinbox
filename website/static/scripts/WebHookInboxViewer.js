@@ -1,9 +1,9 @@
-var API_ENDPOINT = Fanout.WebHookInboxViewer.config.apiEndpoint;
+var API_ENDPOINT = Fanout.WebhookInboxViewer.config.apiEndpoint;
 var MAX_RESULTS = 3;
 
-var WebHookInboxViewer = angular.module('WebHookInboxViewer', []);
+var WebhookInboxViewer = angular.module('WebhookInboxViewer', []);
 
-WebHookInboxViewer.factory("Pollymer", function($q, $rootScope) {
+WebhookInboxViewer.factory("Pollymer", function($q, $rootScope) {
     var count = 0;
     return {
         create: function() {
@@ -51,8 +51,8 @@ WebHookInboxViewer.factory("Pollymer", function($q, $rootScope) {
     }
 });
 
-WebHookInboxViewer.controller("HomeCtrl", function ($scope, $window, Pollymer) {
-    $scope.webHookId = "";
+WebhookInboxViewer.controller("HomeCtrl", function ($scope, $window, Pollymer) {
+    $scope.webhookId = "";
     
     var openInbox = function(id) {
         $window.location.href = "/view/" + id;
@@ -72,16 +72,16 @@ WebHookInboxViewer.controller("HomeCtrl", function ($scope, $window, Pollymer) {
     };
     
     $scope.go = function() {
-        openInbox($scope.webHookId);
+        openInbox($scope.webhookId);
     };
 });
 
-WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $window, $route, Pollymer) {
+WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $route, Pollymer) {
 
     $scope.inbox = { updatesCursor: null, historyCursor: null, newestId: null, entries: [], pendingEntries: [], liveUpdates: true, fetching: false, pollingUpdates: false, error: false };
-    $scope.webHookEndpoint = "";
+    $scope.webhookEndpoint = "";
 
-    var webHookId = $window.serverData.webhookId;
+    var webhookId = $window.serverData.webhookId;
 
     var itemToViewModel = function(item) {
         item.dateTime = Date.parse(item.created);
@@ -129,7 +129,7 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $window, $ro
 
     var longPollymer = null;
     var longPoll = function(id) {
-        var url = API_ENDPOINT + "i/" + webHookId + "/items/?order=created";
+        var url = API_ENDPOINT + "i/" + webhookId + "/items/?order=created";
 
         if (id) {
             url += "&since=id:" + id;
@@ -169,7 +169,7 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $window, $ro
     };
 
     var initial = function() {
-        var url = API_ENDPOINT + "i/" + webHookId + "/items/?order=-created&max=" + MAX_RESULTS;
+        var url = API_ENDPOINT + "i/" + webhookId + "/items/?order=-created&max=" + MAX_RESULTS;
 
         // initial load
         var poll = handlePastFetch(url);
@@ -180,17 +180,17 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $window, $ro
                 prefix = "http:";
             }
             
-            $scope.webHookEndpoint = prefix + API_ENDPOINT + "i/" + webHookId + "/";
+            $scope.webhookEndpoint = prefix + API_ENDPOINT + "i/" + webhookId + "/";
             var id = ("result" in result && "items" in result.result && result.result.items.length) ? result.result.items[0].id : null;
             longPoll(id);
         });
     };
 
-    $scope.webHookInboxUrl = function() {
-        if ($scope.webHookEndpoint.length == 0) {
+    $scope.webhookInboxUrl = function() {
+        if ($scope.webhookEndpoint.length == 0) {
             return "";
         }
-        return $scope.webHookEndpoint + "in/";
+        return $scope.webhookEndpoint + "in/";
     };
 
     $scope.$on("$routeChangeStart", function() {
@@ -198,14 +198,14 @@ WebHookInboxViewer.controller("WebHookInboxCtrl", function ($scope, $window, $ro
     });
 
     $scope.history = function() {
-        var url = API_ENDPOINT + "i/" + webHookId + "/items/?order=-created&max=" + MAX_RESULTS + "&since=cursor:" + $scope.inbox.historyCursor;
+        var url = API_ENDPOINT + "i/" + webhookId + "/items/?order=-created&max=" + MAX_RESULTS + "&since=cursor:" + $scope.inbox.historyCursor;
 
         // History get
         handlePastFetch(url);
     };
 
     $scope.copy = function() {
-        var endPoint = $scope.webHookEndpoint;
+        var endPoint = $scope.webhookEndpoint;
         // No way to do this using pure javascript.
     };
 
