@@ -14,7 +14,7 @@
         </div>
         -->
         <div class="target-autoupdates">
-            <div class="label" ng-click="toggleAuto()">
+            <div class="label" ng-class="inbox.liveUpdates ? 'label-off' : 'label-on'" ng-click="toggleAuto()">
                 turn {{ inbox.liveUpdates ? "OFF" : "ON" }} auto updates
             </div>
             <div class="count" ng-show="inbox.pendingEntries.length > 0" class="count" ng-click="flushPendingEntries()">
