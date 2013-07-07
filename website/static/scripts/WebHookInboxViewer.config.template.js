@@ -1,11 +1,11 @@
 /*
-WebHookInboxViewer config file template
-Copy to WebHookInboxViewer.config.js and add your settings here.
+WebhookInboxViewer config file template
+Copy to WebhookInboxViewer.config.js and add your settings here.
  */
 
 var Fanout = Fanout || {};
-Fanout.WebHookInboxViewer = Fanout.WebHookInboxViewer || {};
+Fanout.WebhookInboxViewer = Fanout.WebhookInboxViewer || {};
 
-Fanout.WebHookInboxViewer.config = {
+Fanout.WebhookInboxViewer.config = {
     apiEndpoint: "//api.webhookinbox.com/"
 };
