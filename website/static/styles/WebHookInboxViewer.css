@@ -8,6 +8,7 @@ body {
     margin: 0;
     padding: 0;
     font: 12px Helvetica,Arial;
+    background: black;
 }
 
 a {
@@ -275,6 +276,7 @@ a {
 
 .status {
     height: 30px;
+    background: white;
 }
 
 .status .status-message {
@@ -290,6 +292,7 @@ a {
 
 .error {
     height: 50px;
+    background: white;
 }
 
 .error .error-message {
