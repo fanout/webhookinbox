@@ -261,7 +261,6 @@ a {
 .entry-history .show-more {
     font-size: 11px;
     font-weight: bold;
-    margin: 0 auto;
     text-align: center;
     width: 100%;
     position: absolute;
@@ -270,12 +269,45 @@ a {
     text-shadow: 1px 1px 2px #000;
 }
 
+.status {
+    height: 30px;
+}
+
+.status .status-message {
+    font-size: 12px;
+    width: 100%;
+    position: absolute;
+    top: 8px;
+}
+
+.status .status-message img {
+    vertical-align: bottom;
+}
+
+.error {
+    height: 50px;
+}
+
+.error .error-message {
+    font-size: 14px;
+    width: 100%;
+    position: absolute;
+    top: 10px;
+}
+
 .footer {
     height: 100px;
     background: url("/static/images/footer-bg.png");
 }
 
 .footer .message {
-    font-size: 13px;
+    width: 100%;
+    position: absolute;
+    width: 100%;
+    top: 45px;
     text-align: center;
+    font-size: 13px;
+    font-weight: normal;
+    color: #64666b;
+    text-shadow: 1px 1px 2px #000;
 }
