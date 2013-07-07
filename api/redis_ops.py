@@ -204,15 +204,20 @@ class RedisOps(object):
 					if not pipe.exists(key):
 						raise ObjectDoesNotExist('No such inbox: %s' + id)
 					end_pos = pipe.llen(items_key)
+					baseindex = pipe.get(items_baseindex_key)
+					if baseindex is not None:
+						baseindex = int(baseindex)
+					else:
+						baseindex = 0
 					item['created'] = RedisOps._timestamp_utcnow()
 					pipe.multi()
 					pipe.rpush(items_key, json.dumps(item))
 					pipe.execute()
-					prev_pos = end_pos - 1
+					prev_pos = baseindex + end_pos - 1
 					if prev_pos != -1:
-						return (str(end_pos), str(prev_pos), item['created'])
+						return (str(baseindex + end_pos), str(prev_pos), item['created'])
 					else:
-						return (str(end_pos), '', item['created'])
+						return (str(baseindex + end_pos), '', item['created'])
 				except redis.WatchError:
 					continue
 
