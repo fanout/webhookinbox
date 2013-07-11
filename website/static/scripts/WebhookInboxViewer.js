@@ -64,15 +64,12 @@ WebhookInboxViewer.controller("HomeCtrl", function ($scope, $window, Pollymer) {
         var pollymer = Pollymer.create();
         var poll = pollymer.post(url);
         poll.then(function(result) {
+            $scope.creating = false;
             var result = result.result;
             openInbox(result.id);
         }, function(reason) {
             $scope.error = true;
         });
-    };
-    
-    $scope.go = function() {
-        openInbox($scope.webhookId);
     };
 });
 
