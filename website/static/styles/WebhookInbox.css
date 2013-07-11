@@ -36,6 +36,21 @@ a {
     background-position: left 0;
 }
 
+.header div.links {
+    position: absolute;
+    right: 0;
+    top: 31px;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: right;
+}
+
+.header .links > a {
+    color: #9599a1;
+    text-shadow: 1px 1px 2px #000;
+    margin-left: 35px;
+}
+
 .description {
     height: 380px;
     background-position: left -100px;
@@ -103,4 +118,16 @@ a {
 .footer {
     height: 100px;
     background-position: left -700px;
+}
+
+.footer .message {
+    width: 100%;
+    position: absolute;
+    width: 100%;
+    top: 45px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: normal;
+    color: #64666b;
+    text-shadow: 1px 1px 2px #000;
 }
