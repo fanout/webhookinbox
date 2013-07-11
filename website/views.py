@@ -9,3 +9,6 @@ def view(request, inbox_id):
 
 def about(request):
 	return render_to_response('website/about.html', {}, context_instance=RequestContext(request))
+
+def contact(request):
+	return render_to_response('website/contact.html', {}, context_instance=RequestContext(request))
