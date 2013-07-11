@@ -1,13 +1,21 @@
-<div>Welcome to WebhookInbox Viewer.</div>
-
 <div ng-show="!error">
-    <button ng-click="create()" ng-disabled="creating" class="btn btn-large btn-primary"><i class="icon-inbox icon-white"></i> Create New Inbox</button>
-
-    <div ng-show="creating">
-        Creating ...
+    <div ng-show="!creating" ng-click="create()" ng-disabled="creating" class="create-inbox">
+        <div class="image">
+            <img src="/static/images/inbox-button.png" />
+        </div>
+        <div class="label">
+            create an inbox
+        </div>
+    </div>
+    <div ng-show="creating" class="create-inbox creating">
+        <div class="image">
+            <img src="/static/images/ajax-loader-button.gif" />
+        </div>
+        <div class="label">
+            creating ...
+        </div>
     </div>
 </div>
-
 <div ng-show="error">
     There has been an error creating an inbox.  Please reload the page and try again.
 </div>

@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>WebhookInbox Viewer</title>
-    <link href="/static/styles/WebhookInboxViewer.css" rel="stylesheet" />
+    <link href="/static/styles/WebhookInbox.css" rel="stylesheet" />
     <!--[if lte IE 8]>
     <script src="/static/scripts/json2.js"></script>
     <![endif]-->
@@ -13,13 +13,49 @@
     <base href="/" />
 </head>
 <body>
-<div class="other">
-    <a href="/docs/">API</a>
-    <a href="/about/">About</a>
-    <a href="/contact/">Contact</a>
+
+<div class="header container">
+    <div class="row">
+        <div class="links">
+            <a href="/docs/">API</a>
+            <a href="/about/">About</a>
+            <a href="/contact/">Contact</a>
+        </div>
+    </div>
 </div>
 
-<div ng-app="WebhookInboxViewer" ng-controller="HomeCtrl" ng-include="'/static/templates/home-template.html'">
+<div class="description container">
+    <div class="row">
+        <div class="logo">
+            <img src="/static/images/logo-home.png" />
+        </div>
+        <div class="copy-main">
+            Webhook Inbox receives HTTP requests and<br />
+            captures the data for later inspection.
+        </div>
+        <div class="copy-sub">
+            It is useful for debugging HTTP callbacks or seeing what a browser/client is sending.<br />
+            When you create an inbox, you are given a generated URL<br />
+            that is to be used by the sending application.
+        </div>
+    </div>
+</div>
+
+<div class="main container">
+    <div class="row">
+        <div class="content">
+            <div ng-app="WebhookInboxViewer" ng-controller="HomeCtrl" ng-include="'/static/templates/home-template.html'">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="footer container">
+    <div class="row">
+        <div class="content">
+            Inspired by Requestbin, &nbsp;2013 Fanout, Inc.
+        </div>
+    </div>
 </div>
 
 </body>

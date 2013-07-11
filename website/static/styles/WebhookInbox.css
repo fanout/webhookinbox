@@ -1,0 +1,106 @@
+html {
+    -webkit-box-sizing:  border-box;
+    -moz-box-sizing:  border-box;
+    box-sizing:  border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font: 12px Helvetica,Arial;
+    background: black;
+}
+
+a {
+    text-decoration: none;
+}
+
+.container {
+    background: url("/static/images/home-bg.png");
+}
+
+.container > .row {
+    position: relative;
+    width: 960px;
+    margin: 0 auto;
+}
+
+.container > .row > div {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+}
+
+.header {
+    height: 100px;
+    background-position: left 0;
+}
+
+.description {
+    height: 380px;
+    background-position: left -100px;
+}
+
+.description .logo {
+    top: 60px;
+}
+
+.description .copy-main {
+    top: 180px;
+    color: #ced0d6;
+    font-weight: bold;
+    font-size: 24px;
+    text-shadow: 1px 1px 2px #000;
+}
+
+.description .copy-sub {
+    top: 270px;
+    color: #9a9ca1;
+    font-family: "Myriad Pro",Helvetica,Arial;
+    font-size: 15px;
+    text-shadow: 1px 1px 2px #000;
+}
+
+.main {
+    height: 220px;
+    background-position: left -480px;
+}
+
+.main .create-inbox {
+    width: 308px;
+    margin: 0 auto;
+    background: url("/static/images/button-bg.png") top left;
+    height: 69px;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+    font-size: 26px;
+    text-shadow: 1px 1px 2px #000;
+    position: relative;
+}
+.main .create-inbox.creating {
+    background-position: bottom left;
+}
+
+.main .create-inbox .image {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    width: 58px;
+    height: 58px;
+    padding-top: 13px;
+}
+
+.main .create-inbox .label {
+    position: absolute;
+    left: 65px;
+    top: 5px;
+    width: 238px;
+    height: 58px;
+    padding-top: 14px;
+}
+
+.footer {
+    height: 100px;
+    background-position: left -700px;
+}
