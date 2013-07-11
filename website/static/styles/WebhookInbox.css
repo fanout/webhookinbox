@@ -1,6 +1,8 @@
-html {
+* {
     -webkit-box-sizing:  border-box;
+    -o-box-sizing:  border-box;
     -moz-box-sizing:  border-box;
+    -ms-box-sizing:  border-box;
     box-sizing:  border-box;
 }
 
@@ -25,10 +27,9 @@ a {
     margin: 0 auto;
 }
 
-.container > .row > div {
+.container.fixed-height > .row > div {
     position: absolute;
     width: 100%;
-    text-align: center;
 }
 
 .header {
@@ -36,10 +37,21 @@ a {
     background-position: left 0;
 }
 
-.header div.links {
+.header80 {
+    height: 80px;
+}
+
+.header .logo {
     position: absolute;
-    right: 0;
+    left: 10px;
+    top: 25px;
+}
+
+.header .links {
+    position: absolute;
     top: 31px;
+    right: 0;
+    padding-right: 10px;
     font-size: 11px;
     font-weight: bold;
     text-align: right;
@@ -54,6 +66,7 @@ a {
 .description {
     height: 380px;
     background-position: left -100px;
+    text-align: center;
 }
 
 .description .logo {
@@ -79,6 +92,7 @@ a {
 .main {
     height: 220px;
     background-position: left -480px;
+    text-align: center;
 }
 
 .main .create-inbox {
@@ -113,6 +127,40 @@ a {
     width: 238px;
     height: 58px;
     padding-top: 14px;
+}
+
+.l2-content.container {
+    background: white;
+    padding: 30px 0 90px;
+}
+
+.l2-content .row > div {
+    display: inline-block;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.l2-content .content {
+    width: 640px;
+}
+.l2-content .sidebar {
+    width: 320px;
+}
+
+.l2-content {
+    font: normal 14px/22px Helvetica;
+    color: #60636b;
+}
+
+.l2-content blockquote {
+    font-style: italic;
+    margin-left: 20px;
+    padding-left: 20px;
+    border-left: 1px solid;
+}
+
+.l2-content h1 {
+    font-size: 36px;
 }
 
 .footer {

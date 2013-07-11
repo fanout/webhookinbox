@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>WebhookInbox Viewer</title>
+    <title>WebhookInbox Viewer{% block title_suffix %}{% endblock %}</title>
+    <link rel="shortcut icon" href="/static/images/favicon.ico" />
     <link href="/static/styles/WebhookInbox.css" rel="stylesheet" />
     <!--[if lte IE 8]>
     <script src="/static/scripts/json2.js"></script>
@@ -10,12 +11,17 @@
     <script src="/static/scripts/pollymer-1.0.0.js"></script>
     <script src="/static/scripts/WebhookInboxViewer.config.js"></script>
     <script src="/static/scripts/WebhookInboxViewer.js"></script>
-    <base href="/" />
+    <script>
+        window.serverData = { webhookId: "{{ inbox_id }}" };
+    </script>
 </head>
 <body>
 
-<div class="header container fixed-height">
+<div class="header header80 container fixed-height">
     <div class="row">
+        <div class="logo">
+            <a href="/"><img src="/static/images/logo.png" /></a>
+        </div>
         <div class="links">
             <a href="/docs/">API</a>
             <a href="/about/">About</a>
@@ -24,28 +30,13 @@
     </div>
 </div>
 
-<div class="description container fixed-height">
-    <div class="row">
-        <div class="logo">
-            <img src="/static/images/logo-home.png" />
-        </div>
-        <div class="copy-main">
-            Webhook Inbox receives HTTP requests and<br />
-            captures the data for later inspection.
-        </div>
-        <div class="copy-sub">
-            It is useful for debugging HTTP callbacks or seeing what a browser/client is sending.<br />
-            When you create an inbox, you are given a generated URL<br />
-            that is to be used by the sending application.
-        </div>
-    </div>
-</div>
-
-<div class="main container fixed-height">
+<div class="l2-content container">
     <div class="row">
         <div class="content">
-            <div ng-app="WebhookInboxViewer" ng-controller="HomeCtrl" ng-include="'/static/templates/home-template.html'">
-            </div>
+            {% block content %}{% endblock %}
+        </div>
+        <div class="sidebar">
+            {% block sidebar %}{% endblock %}
         </div>
     </div>
 </div>
