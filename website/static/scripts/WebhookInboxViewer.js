@@ -1,5 +1,5 @@
 var API_ENDPOINT = Fanout.WebhookInboxViewer.config.apiEndpoint;
-var MAX_RESULTS = 3;
+var MAX_RESULTS = Fanout.WebhookInboxViewer.config.maxResults;
 
 var WebhookInboxViewer = angular.module('WebhookInboxViewer', []);
 

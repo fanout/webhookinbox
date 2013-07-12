@@ -7,5 +7,6 @@ var Fanout = Fanout || {};
 Fanout.WebhookInboxViewer = Fanout.WebhookInboxViewer || {};
 
 Fanout.WebhookInboxViewer.config = {
-    apiEndpoint: "//api.webhookinbox.com/"
+    apiEndpoint: "//api.webhookinbox.com/",
+    maxResults: 20
 };
