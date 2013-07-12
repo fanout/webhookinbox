@@ -117,18 +117,36 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
     };
 
     $scope.toggleAuto = function() {
-        $scope.flushPendingEntries();
+        if (!$scope.inbox.liveUpdates) {
+            $scope.flushPendingEntriesNonLive();
+        }
         $scope.inbox.liveUpdates = !$scope.inbox.liveUpdates;
     }
 
-    $scope.checkPendingEntries = function() {
-        if ($scope.inbox.liveUpdates) {
-            $scope.flushPendingEntries();
-        }
-    };
-
     $scope.flushPendingEntries = function() {
         $scope.animationMode = $scope.inbox.liveUpdates ? "live" : "nonlive";
+        $scope.inbox.entries = $scope.inbox.pendingEntries.concat($scope.inbox.entries);
+        $scope.inbox.pendingEntries = [];
+    };
+
+    var flushPendingEntriesLive = function() {
+
+        if ($scope.inbox.liveUpdates) {
+            if ($scope.inbox.pendingEntries.length > 0) {
+                var entry = $scope.inbox.pendingEntries.pop();
+                $scope.animationMode = "live";
+                $scope.inbox.entries.unshift(entry);
+                $scope.$apply();
+            }
+        }
+
+        $window.setTimeout(function() {flushPendingEntriesLive();}, 120);
+    };
+
+    flushPendingEntriesLive();
+
+    $scope.flushPendingEntriesNonLive = function() {
+        $scope.animationMode = "nonlive";
         $scope.inbox.entries = $scope.inbox.pendingEntries.concat($scope.inbox.entries);
         $scope.inbox.pendingEntries = [];
     };
@@ -159,9 +177,6 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
                 var entry = itemToViewModel(items[i]);
                 $scope.inbox.pendingEntries.unshift(entry);
             }
-        });
-        poll.then(function() {
-            $scope.checkPendingEntries();
         });
         poll.then(function() {
             longPoll();

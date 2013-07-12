@@ -149,21 +149,8 @@ a {
     -o-transition: all 0.5s linear;
     transition: all 0.5s linear;
     max-height: 999px;
-
     left: 0;
-    /* min-height: 142px; */
-    /* width: 100%; */
 }
-
-/*
-.inbox-entry .inner {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: auto;
-}
-*/
 
 .animate-live-enter {
     max-height: 0;
