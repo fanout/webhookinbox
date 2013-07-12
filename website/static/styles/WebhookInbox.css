@@ -17,6 +17,10 @@ a {
     text-decoration: none;
 }
 
+a img {
+    border: none;
+}
+
 .container {
     background: url("/static/images/home-bg.png");
 }
@@ -29,7 +33,6 @@ a {
 
 .container.fixed-height > .row > div {
     position: absolute;
-    width: 100%;
 }
 
 .header {
@@ -69,6 +72,10 @@ a {
     text-align: center;
 }
 
+.description .row > div {
+    width: 100%;
+}
+
 .description .logo {
     top: 60px;
 }
@@ -93,6 +100,10 @@ a {
     height: 220px;
     background-position: left -480px;
     text-align: center;
+}
+
+.main .row > div {
+    width: 100%;
 }
 
 .main .create-inbox {
@@ -141,10 +152,10 @@ a {
 }
 
 .l2-content .content {
-    width: 640px;
+    width: 720px;
 }
 .l2-content .sidebar {
-    width: 320px;
+    width: 240px;
 }
 
 .l2-content {
@@ -177,5 +188,10 @@ a {
     font-size: 13px;
     font-weight: normal;
     color: #64666b;
+    text-shadow: 1px 1px 2px #000;
+}
+
+.footer .message a {
+    color: #9599a1;
     text-shadow: 1px 1px 2px #000;
 }

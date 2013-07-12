@@ -17,6 +17,10 @@ a {
     text-decoration: none;
 }
 
+a img {
+    border: none;
+}
+
 .container {
     padding: 0 40px;
 }
@@ -332,5 +336,10 @@ a {
     font-size: 13px;
     font-weight: normal;
     color: #64666b;
+    text-shadow: 1px 1px 2px #000;
+}
+
+.footer .message a {
+    color: #9599a1;
     text-shadow: 1px 1px 2px #000;
 }
