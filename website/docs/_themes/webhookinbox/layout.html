@@ -5,30 +5,42 @@
 {% block relbar2 %}{% endblock %}
 
 {% block content %}
-      <div class="nav">
-      </div>
-      <!--
-      <div class="header">
-        <div class="content">
-            <a href="{{ pathto('index') }}">
-              <img class="logo" src="{{ pathto('_static/logo.png', 1) }}" alt="Logo"/>
-            </a>
+    <div class="header header80 container fixed-height">
+        <div class="row">
+            <div class="logo">
+                <a href="/"><img src="/static/images/logo.png" /></a>
+            </div>
+            <div class="links">
+                <a href="/docs/api.html">API</a>
+                <a href="/about/">About</a>
+                <a href="/contact/">Contact</a>
+            </div>
         </div>
-      </div>
-      -->
-      <div class="main">
-        <div class="content">
+    </div>
 
-          {% if pagename != "index" %}
-          <div id="toc">
-            {{ sidebar() }}
-          </div>
-          {% endif %}
-
-          {% block body %}{% endblock %}
-
+    <div class="main container">
+        <div class="row">
+            <div class="content">
+                {% block body %}{% endblock %}
+            </div>
+            <div class="sidebar">
+                {% if pagename != "index" %}
+                <div id="toc">
+                    {{ sidebar() }}
+                </div>
+                {% endif %}
+            </div>
         </div>
-      </div>
+    </div>
+
+    <div class="footer container fixed-height realfooter">
+        <div class="row">
+            <div class="message">
+                Inspired by <a href="http://requestb.in/">Requestbin</a>, &copy;2013 <a href="http://fanout.io/">Fanout, Inc</a>.
+                Created using <a href="http://sphinx-doc.org/">Sphinx</a>.
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {%- block linktags %}
