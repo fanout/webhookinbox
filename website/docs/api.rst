@@ -218,8 +218,3 @@ The HTTP streaming mechanism first responds with the text "[opened]" followed by
   { ... item ... }
 
 Non-browser applications may prefer using the streaming mechanism because the HTTP connection doesn't need to be closed after every received item. However, be aware that if the inbox needs to be refreshed to avoid expiration then the application must make refresh requests independently of the open stream. Simply having a stream open does not prevent the inbox from expiring. With the long-polling mechanism, on the other hand, the inbox ends up getting refreshed each time the client polls.
-
-Contact
--------
-
-WebhookInbox is produced by Fanout, Inc. Please do not hesitate to contact info@fanout.io with any questions.
