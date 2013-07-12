@@ -162,13 +162,18 @@ a img {
     opacity: 0.0;
 }
 .animate-live-enter.animate-live-enter-active {
-    max-height: 142px;
+    max-height: 999px;
     left: 0;
     opacity: 1.0;
 }
 
 .animate-nonlive-enter {
+    max-height: 0;
     opacity: 0.0;
+}
+.animate-nonlive-enter.animate-nonlive-enter-active {
+    max-height: 999px;
+    opacity: 1.0;
 }
 
 .entry-main {
