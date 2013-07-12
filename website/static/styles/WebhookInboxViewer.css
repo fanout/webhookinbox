@@ -124,12 +124,13 @@ a {
 .target-autoupdates .count-inner {
     border: 1px solid;
     border-color: #af81cb #6f34a0 #8747b1 #8142ad;
-    padding: 1px 3px;
     font-family: Helvetica,Arial;
     font-size: 11px;
     font-weight: normal;
     text-align: center;
-    min-width: 9px;
+    line-height: 18px;
+    height: 18px;
+    min-width: 18px;
 }
 
 .target .target-copy button {
@@ -143,28 +144,40 @@ a {
 .inbox-entry {
     position: relative;
 
-    -webkit-transition:all ease-in-out 0.8s;
-    -moz-transition:all ease-in-out 0.8s;
-    -o-transition:all ease-in-out 0.8s;
-    transition:all ease-in-out 0.8s;
+    -webkit-transition: all 0.5s linear;
+    -moz-transition: all 0.5s linear;
+    -o-transition: all 0.5s linear;
+    transition: all 0.5s linear;
+    max-height: 999px;
+
+    left: 0;
+    /* min-height: 142px; */
+    /* width: 100%; */
 }
+
+/*
+.inbox-entry .inner {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+}
+*/
 
 .animate-live-enter {
-    left: 100%;
+    max-height: 0;
+    left: 50%;
     opacity: 0.0;
 }
-
 .animate-live-enter.animate-live-enter-active {
-    left: 0px;
+    max-height: 142px;
+    left: 0;
     opacity: 1.0;
 }
 
 .animate-nonlive-enter {
     opacity: 0.0;
-}
-
-.animate-nonlive-enter.animate-nonlive-enter-active {
-    opacity: 1.0;
 }
 
 .entry-main {
@@ -196,6 +209,7 @@ a {
     background-color: #f8f8f8;
     border-top: 1px solid #ffffff;
     border-bottom: 1px solid #aaaaaa;
+    overflow: hidden;
 }
 
 .entry-meta, .entry-body {
