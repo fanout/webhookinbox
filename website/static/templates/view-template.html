@@ -100,7 +100,13 @@
     <div ng-show="!inbox.fetching && inbox.entries.length == 0" class="status container">
         <div class="row">
             <div class="status-message">
-                The inbox is empty.
+                <div>
+                    The inbox is empty.
+                </div>
+                <div>
+                    Post a message to the inbox by making a request to
+                    <a href="{{webhookInboxUrl()}}" target="_blank">{{webhookInboxUrl()}}</a>
+                </div>
             </div>
         </div>
     </div>

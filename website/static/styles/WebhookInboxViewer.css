@@ -295,15 +295,13 @@ a img {
 }
 
 .status {
-    height: 30px;
     background: white;
 }
 
 .status .status-message {
-    font-size: 12px;
+    font-size: 14px;
     width: 100%;
-    position: absolute;
-    top: 8px;
+    padding: 8px 0;
 }
 
 .status .status-message img {
