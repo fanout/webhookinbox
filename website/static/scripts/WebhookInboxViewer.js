@@ -123,30 +123,17 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
         $scope.inbox.liveUpdates = !$scope.inbox.liveUpdates;
     }
 
-    $scope.flushPendingEntries = function() {
-        $scope.animationMode = $scope.inbox.liveUpdates ? "live" : "nonlive";
-        $scope.inbox.entries = $scope.inbox.pendingEntries.concat($scope.inbox.entries);
-        $scope.inbox.pendingEntries = [];
+    $scope.flushPendingEntriesLive = function() {
+        $scope.animationMode = "live";
+
+        var entry = $scope.inbox.pendingEntries.pop();
+        $scope.inbox.entries.unshift(entry);
+        $scope.$apply();
     };
-
-    var flushPendingEntriesLive = function() {
-
-        if ($scope.inbox.liveUpdates) {
-            if ($scope.inbox.pendingEntries.length > 0) {
-                var entry = $scope.inbox.pendingEntries.pop();
-                $scope.animationMode = "live";
-                $scope.inbox.entries.unshift(entry);
-                $scope.$apply();
-            }
-        }
-
-        $window.setTimeout(function() {flushPendingEntriesLive();}, 120);
-    };
-
-    flushPendingEntriesLive();
 
     $scope.flushPendingEntriesNonLive = function() {
         $scope.animationMode = "nonlive";
+
         $scope.inbox.entries = $scope.inbox.pendingEntries.concat($scope.inbox.entries);
         $scope.inbox.pendingEntries = [];
     };
@@ -215,10 +202,6 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
         return $scope.webhookEndpoint + "in/";
     };
 
-    $scope.$on("$routeChangeStart", function() {
-        stopLongPoll();
-    });
-
     $scope.history = function() {
         var url = API_ENDPOINT + "i/" + webhookId + "/items/?order=-created&max=" + MAX_RESULTS + "&since=cursor:" + $scope.inbox.historyCursor;
 
@@ -231,5 +214,16 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
         // No way to do this using pure javascript.
     };
 
+    // Set up the table update worker that flushes pending entries
+    // when live updates are on.
+    var tableUpdateWorker = function() {
+        if ($scope.inbox.liveUpdates && $scope.inbox.pendingEntries.length > 0) {
+            $scope.flushPendingEntriesLive();
+        }
+        $window.setTimeout(function() {tableUpdateWorker();}, 120);
+    };
+    tableUpdateWorker();
+
+    // Perform initial load
     initial();
 });
