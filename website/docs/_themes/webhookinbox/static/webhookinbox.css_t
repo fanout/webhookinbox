@@ -171,6 +171,7 @@ div.content {
 
 div.sidebar {
     width: 240px;
+    margin-top: 20px;
 }
 
 div.content img {
