@@ -44,6 +44,11 @@ if hasattr(settings, 'WHINBOX_ITEM_BURST_TIME'):
 if hasattr(settings, 'WHINBOX_ITEM_BURST_MAX'):
 	db.item_burst_max = settings.WHINBOX_ITEM_BURST_MAX
 
+if hasattr(settings, 'WHINBOX_ORIG_HEADERS'):
+	orig_headers = True
+else:
+	orig_headers = False
+
 pub.proxies = grip_proxies
 
 # useful list derived from requestbin
@@ -99,11 +104,24 @@ def _req_to_item(req):
 	for k, v in req.META.iteritems():
 		if k.startswith('HTTP_'):
 			raw_headers.append((k[5:], v))
+	# undjangoify the header names
 	headers = list()
 	for h in raw_headers:
-		name = _convert_header_name(h[0])
-		if not _ignore_header(name):
-			headers.append([name, h[1]])
+		headers.append((_convert_header_name(h[0]), h[1]))
+	if orig_headers:
+		# if this option is set, then we assume the exact headers are magic prefixed
+		tmp = list()
+		for h in headers:
+			if h[0].startswith('eb9bf0f5-'):
+				tmp.append((h[0][9:], h[1]))
+		headers = tmp
+	else:
+		# otherwise, use the blacklist to clean things up
+		tmp = list()
+		for h in headers:
+			if not _ignore_header(h[0]):
+				tmp.append(h)
+		headers = tmp
 	item['headers'] = headers
 	if len(req.raw_post_data) > 0:
 		try:
