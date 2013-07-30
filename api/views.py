@@ -112,7 +112,7 @@ def _req_to_item(req):
 		# if this option is set, then we assume the exact headers are magic prefixed
 		tmp = list()
 		for h in headers:
-			if h[0].startswith('eb9bf0f5-'):
+			if h[0].lower().startswith('eb9bf0f5-'):
 				tmp.append((h[0][9:], h[1]))
 		headers = tmp
 	else:
