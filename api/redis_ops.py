@@ -9,6 +9,9 @@ import redis
 class InvalidId(Exception):
 	pass
 
+class ObjectExists(Exception):
+	pass
+
 class ObjectDoesNotExist(Exception):
 	pass
 
@@ -38,38 +41,49 @@ class RedisOps(object):
 	@staticmethod
 	def _validate_id(id):
 		for c in id:
-			if c not in string.letters and c not in string.digits:
+			if c not in string.letters and c not in string.digits and c not in '_-@':
 				raise InvalidId('id contains invalid character: %s' % c)
 
 	@staticmethod
 	def _timestamp_utcnow():
 		return calendar.timegm(datetime.utcnow().utctimetuple())
 
-	def inbox_create(self, ttl):
+	# if id=None, then a random id will be used
+	# return the id used
+	def inbox_create(self, id, ttl, response_mode):
+		if id is not None:
+			RedisOps._validate_id(id)
 		assert(isinstance(ttl, int))
 		r = self._get_redis()
 		val = dict()
 		val['ttl'] = ttl
+		val['response_mode'] = response_mode
 		set_key = self.prefix + 'inbox'
 		exp_key = self.prefix + 'inbox-exp'
 		now = RedisOps._timestamp_utcnow()
 		while True:
 			with r.pipeline() as pipe:
 				try:
-					id = RedisOps._gen_id()
-					key = self.prefix + 'inbox-' + id
+					if id is not None:
+						try_id = id
+					else:
+						try_id = RedisOps._gen_id()
+					key = self.prefix + 'inbox-' + try_id
 					pipe.watch(key)
 					pipe.watch(exp_key)
 					if pipe.exists(key):
-						# try another random value
-						continue
+						if id is not None:
+							raise ObjectExists()
+						else:
+							# try another random value
+							continue
 					exp_time = now + ttl
 					pipe.multi()
 					pipe.set(key, json.dumps(val))
-					pipe.sadd(set_key, id)
-					pipe.zadd(exp_key, id, exp_time)
+					pipe.sadd(set_key, try_id)
+					pipe.zadd(exp_key, try_id, exp_time)
 					pipe.execute()
-					return id
+					return try_id
 				except redis.WatchError:
 					continue
 
@@ -404,3 +418,90 @@ class RedisOps(object):
 				except redis.WatchError:
 					continue
 		return total
+
+	def request_add_pending(self, inbox_id, item_id):
+		r = self._get_redis()
+		req_id = inbox_id + '-' + item_id
+		req_key = self.prefix + 'req-item-' + req_id
+		req_exp_key = self.prefix + 'req-exp'
+		now = RedisOps._timestamp_utcnow()
+		while True:
+			with r.pipeline() as pipe:
+				try:
+					pipe.watch(req_key)
+					pipe.watch(req_exp_key)
+					if pipe.exists(req_key):
+						raise ObjectExists()
+					exp_time = now + 20
+					pipe.multi()
+					pipe.set(req_key, json.dumps([inbox_id, item_id]))
+					pipe.zadd(req_exp_key, req_id, exp_time)
+					pipe.execute()
+					break
+				except redis.WatchError:
+					continue
+
+	def request_remove_pending(self, inbox_id, item_id):
+		r = self._get_redis()
+		req_id = inbox_id + '-' + item_id
+		req_key = self.prefix + 'req-item-' + req_id
+		req_exp_key = self.prefix + 'req-exp'
+		while True:
+			with r.pipeline() as pipe:
+				try:
+					pipe.watch(req_key)
+					pipe.watch(req_exp_key)
+					if not pipe.exists(req_key):
+						raise ObjectDoesNotExist()
+					pipe.multi()
+					pipe.delete(req_key)
+					pipe.zrem(req_exp_key, req_id)
+					pipe.execute()
+					break
+				except redis.WatchError:
+					continue
+
+	def request_is_pending(self, inbox_id, item_id):
+		r = self._get_redis()
+		req_id = inbox_id + '-' + item_id
+		req_key = self.prefix + 'req-item-' + req_id
+		return r.exists(req_key)
+
+	# return list((inbox_id, item_id))
+	def request_take_expired(self):
+		out = list()
+		r = self._get_redis()
+		req_exp_key = self.prefix + 'req-exp'
+		now = RedisOps._timestamp_utcnow()
+		while True:
+			with r.pipeline() as pipe:
+				try:
+					pipe.watch(req_exp_key)
+
+					items = pipe.zrange(req_exp_key, 0, 0, withscores=True)
+					if len(items) == 0:
+						break
+					if int(items[0][1]) > now:
+						break
+					req_id = items[0][0]
+
+					req_key = self.prefix + 'req-item-' + req_id
+					pipe.watch(req_key)
+					val_raw = pipe.get(req_key)
+					if not val_raw:
+						continue
+
+					val = json.loads(val_raw)
+					inbox_id = val[0]
+					item_id = val[1]
+
+					pipe.multi()
+					pipe.delete(req_key)
+					pipe.zrem(req_exp_key, req_id)
+					pipe.execute()
+
+					out.append((inbox_id, item_id))
+					# note: don't break on success
+				except redis.WatchError:
+					continue
+		return out

@@ -1,4 +1,4 @@
-from base64 import b64encode
+from base64 import b64encode, b64decode
 import datetime
 import copy
 import json
@@ -139,12 +139,16 @@ def _req_to_item(req):
 	item['ip_address'] = ip_address
 	return item
 
-def _convert_item(item):
+def _convert_item(item, responded=False):
 	out = copy.deepcopy(item)
 	created = datetime.datetime.fromtimestamp(item['created']).isoformat()
 	if len(created) > 0 and created[-1] != 'Z':
 		created += 'Z'
 	out['created'] = created
+	if responded:
+		out['state'] = 'responded'
+	else:
+		out['state'] = 'response-pending'
 	return out
 
 def root(req):
@@ -156,14 +160,24 @@ def create(req):
 		if not host:
 			return HttpResponseBadRequest('Bad Request: No \'Host\' header\n')
 
+		inbox_id = req.POST.get('id')
+
 		ttl = req.POST.get('ttl')
 		if ttl is not None:
 			ttl = int(ttl)
 		if ttl is None:
 			ttl = 3600
 
+		response_mode = req.POST.get('response_mode')
+		if not response_mode:
+			response_mode = 'auto'
+		if response_mode not in ('auto', 'wait-verify', 'wait'):
+			return HttpResponseBadRequest('Bad Request: response_mode must be "auto", "auto-verify", or "wait"\n')
+
 		try:
-			inbox_id = db.inbox_create(ttl)
+			inbox_id = db.inbox_create(inbox_id, ttl, response_mode)
+		except redis_ops.InvalidId:
+			return HttpResponseBadRequest('Bad Request: Invalid id\n')
 		except:
 			return HttpResponse('Service Unavailable\n', status=503)
 
@@ -171,6 +185,7 @@ def create(req):
 		out['id'] = inbox_id
 		out['base_url'] = 'http://' + host + '/i/' + inbox_id + '/'
 		out['ttl'] = ttl
+		out['response_mode'] = response_mode
 		return HttpResponse(json.dumps(out) + '\n', content_type='application/json')
 	else:
 		return HttpResponseNotAllowed(['POST'])
@@ -194,6 +209,10 @@ def inbox(req, inbox_id):
 		out['id'] = inbox_id
 		out['base_url'] = 'http://' + host + '/i/' + inbox_id + '/'
 		out['ttl'] = inbox['ttl']
+		response_mode = inbox.get('response_mode')
+		if not response_mode:
+			response_mode = 'auto'
+		out['response_mode'] = response_mode
 		return HttpResponse(json.dumps(out) + '\n', content_type='application/json')
 	elif req.method == 'DELETE':
 		try:
@@ -235,9 +254,50 @@ def refresh(req, inbox_id):
 	else:
 		return HttpResponseNotAllowed(['POST'])
 
+def respond(req, inbox_id, item_id):
+	if req.method == 'POST':
+		try:
+			content = json.loads(req.raw_post_data)
+		except:
+			return HttpResponseBadRequest('Bad Request: Body must be valid JSON\n')
+
+		try:
+			code = content.get('code')
+			if code is not None:
+				code = int(code)
+			else:
+				code = 200
+
+			reason = content.get('reason')
+			headers = content.get('headers')
+
+			if 'body-bin' in content:
+				body = b64decode(content['body-bin'])
+			elif 'body' in content:
+				body = content['body']
+			else:
+				body = ''
+		except:
+			return HttpResponseBadRequest('Bad Request: Bad format of response\n')
+
+		try:
+			db.request_remove_pending(inbox_id, item_id)
+		except redis_ops.InvalidId:
+			return HttpResponseBadRequest('Bad Request: Invalid id\n')
+		except redis_ops.ObjectDoesNotExist:
+			return HttpResponseNotFound('Not Found\n')
+		except:
+			return HttpResponse('Service Unavailable\n', status=503)
+
+		pub.publish(grip_prefix + 'wait-' + inbox_id + '-' + item_id, None, None, headers, body, None, code, reason)
+
+		return HttpResponse('Ok\n')
+	else:
+		return HttpResponseNotAllowed(['POST'])
+
 def hit(req, inbox_id):
 	try:
-		db.inbox_get(inbox_id)
+		inbox = db.inbox_get(inbox_id)
 	except redis_ops.InvalidId:
 		return HttpResponseBadRequest('Bad Request: Invalid id\n')
 	except redis_ops.ObjectDoesNotExist:
@@ -245,8 +305,17 @@ def hit(req, inbox_id):
 	except:
 		return HttpResponse('Service Unavailable\n', status=503)
 
+	response_mode = inbox.get('response_mode')
+	if not response_mode:
+		response_mode = 'auto'
+
 	# pubsubhubbub verify request?
 	hub_challenge = req.GET.get('hub.challenge')
+
+	if response_mode == 'wait' or (response_mode == 'wait-verify' and hub_challenge):
+		respond_now = False
+	else:
+		respond_now = True
 
 	item = _req_to_item(req)
 	if hub_challenge:
@@ -267,7 +336,7 @@ def hit(req, inbox_id):
 	item['id'] = item_id
 	item['created'] = item_created
 
-	item = _convert_item(item)
+	item = _convert_item(item, respond_now)
 
 	hr_headers = dict()
 	hr_headers['Content-Type'] = 'application/json'
@@ -279,10 +348,24 @@ def hit(req, inbox_id):
 
 	pub.publish(grip_prefix + 'inbox-' + inbox_id, item_id, prev_id, hr_headers, hr_body, hs_body)
 
-	if hub_challenge:
-		return HttpResponse(hub_challenge)
+	if respond_now:
+		if hub_challenge:
+			return HttpResponse(hub_challenge)
+		else:
+			return HttpResponse('Ok\n')
 	else:
-		return HttpResponse('Ok\n')
+		if not grip.is_proxied(req, grip_proxies):
+			return HttpResponse('Not Implemented\n', status=501)
+
+		# wait for the user to respond
+		db.request_add_pending(inbox_id, item_id)
+		channel = gripcontrol.Channel(grip_prefix + 'wait-' + inbox_id + '-' + item_id)
+		theaders = dict()
+		theaders['Content-Type'] = 'text/html'
+		tbody = 'Service Unavailable\n'
+		tresponse = gripcontrol.Response(code=503, headers=theaders, body=tbody)
+		instruct = gripcontrol.create_hold_response(channel, tresponse)
+		return HttpResponse(instruct, content_type='application/grip-instruct')
 
 def items(req, inbox_id):
 	if req.method == 'GET':
@@ -347,7 +430,7 @@ def items(req, inbox_id):
 				out['last_cursor'] = last_id
 				out_items = list()
 				for i in items:
-					out_items.append(_convert_item(i))
+					out_items.append(_convert_item(i, not db.request_is_pending(inbox_id, i['id'])))
 				out['items'] = out_items
 				return HttpResponse(json.dumps(out) + '\n', content_type='application/json')
 
@@ -379,7 +462,7 @@ def items(req, inbox_id):
 				out['last_cursor'] = last_id
 			out_items = list()
 			for i in items:
-				out_items.append(_convert_item(i))
+				out_items.append(_convert_item(i, not db.request_is_pending(inbox_id, i['id'])))
 			out['items'] = out_items
 			return HttpResponse(json.dumps(out) + '\n', content_type='application/json')
 	else:
