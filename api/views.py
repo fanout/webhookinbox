@@ -172,7 +172,7 @@ def create(req):
 		if not response_mode:
 			response_mode = 'auto'
 		if response_mode not in ('auto', 'wait-verify', 'wait'):
-			return HttpResponseBadRequest('Bad Request: response_mode must be "auto", "auto-verify", or "wait"\n')
+			return HttpResponseBadRequest('Bad Request: response_mode must be "auto", "wait-verify", or "wait"\n')
 
 		try:
 			inbox_id = db.inbox_create(inbox_id, ttl, response_mode)
