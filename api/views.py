@@ -178,6 +178,8 @@ def create(req):
 			inbox_id = db.inbox_create(inbox_id, ttl, response_mode)
 		except redis_ops.InvalidId:
 			return HttpResponseBadRequest('Bad Request: Invalid id\n')
+		except redis_ops.ObjectExists:
+			return HttpResponse('Conflict: Inbox already exists\n', status=409)
 		except:
 			return HttpResponse('Service Unavailable\n', status=503)
 
