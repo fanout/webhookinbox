@@ -248,7 +248,7 @@ Custom HTTP responses
 
 Normally, WebhookInbox automatically responds to all requests made against the inbox target URL. However, this behavior can be overridden by setting the ``response_mode`` parameter during inbox creation. This value may be "auto" (the default), "wait-verify", or "wait". If the mode is "wait", then WebhookInbox will not respond to any requests right away and will instead wait for responses to be provided via the ``/respond/`` endpoint. The "wait-verify" mode will cause WebhookInbox to wait only if a request is a PubSubHubbub verification request; all other requests will be automatically responded to in the usual way.
 
-Here's a request to create an inbox with a "wait-verify" response mode::
+Here's a request to create an inbox with a "wait" response mode::
 
   POST /create/ HTTP/1.1
   Content-Type: application/x-www-form-urlencoded
