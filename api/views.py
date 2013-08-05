@@ -161,6 +161,8 @@ def create(req):
 			return HttpResponseBadRequest('Bad Request: No \'Host\' header\n')
 
 		inbox_id = req.POST.get('id')
+		if inbox_id is not None and len(inbox_id) > 64:
+			return HttpResponseBadRequest('Bad Request: Id length must not exceed 64\n')
 
 		ttl = req.POST.get('ttl')
 		if ttl is not None:
