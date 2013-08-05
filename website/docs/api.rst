@@ -30,6 +30,7 @@ In the API, request items are represented as JSON objects with the following fie
   * ``body-bin`` - The body of the request as base64-encoded binary. If this field is present, then the ``body`` field will not be present. This field is only used if the body does not contain valid text.
   * ``created`` - The date and time that the request was received, in ISO 8601 format.
   * ``ip_address`` - The IP address of the client making the request.
+  * ``responded`` - Boolean indicating whether or not the request has been responded to yet (see `Custom HTTP responses`_).
 
 For example, an item in the inbox might look like::
 
@@ -90,12 +91,34 @@ This will yield a response such as::
   {
     "id": "vJ2lWRKY",
     "base_url": "http://api.webhookinbox.com/i/vJ2lWRKY/",
-    "ttl": 3600
+    "ttl": 3600,
+    "response_mode": "auto"
   }
 
-The ``base_url`` field is the URL of the resource representing the inbox. Other endpoints related to the inbox are suffixed to the base URL. Notably, the inbox target URL is the base URL suffixed with ``in/``. Requests made to the target URL will have their data captured and stored in the inbox. The ``ttl`` value specifies a duration in seconds, so in this example the inbox has a TTL of 1 hour.
+The ``base_url`` field is the URL of the resource representing the inbox. Other endpoints related to the inbox are suffixed to the base URL. Notably, the inbox target URL is the base URL suffixed with ``in/``. Requests made to the target URL will have their data captured and stored in the inbox. The ``ttl`` value specifies a duration in seconds, so in this example the inbox has a TTL of 1 hour. The ``response_mode`` value specifies how WebhookInbox shall respond to HTTP requests made to the inbox target URL. More about ``response_mode`` can be found in the `Custom HTTP responses`_ section.
 
-Optionally, you can ask for a specific TTL by providing one as a post parameter::
+Optionally, you can specify the id that the inbox should have by providing it as a post parameter::
+
+  POST /create/ HTTP/1.1
+  Content-Type: application/x-www-form-urlencoded
+
+  id=myinbox
+
+If the id is not in use by another inbox, then the server will respond successfully::
+
+  HTTP/1.1 200 OK
+  Content-Type: application/json
+
+  {
+    "id": "myinbox",
+    "base_url": "http://api.webhookinbox.com/i/myinbox/",
+    "ttl": 3600,
+    "response_mode": "auto"
+  }
+
+Otherwise, the server will return status code 409 (Conflict).
+
+You can also ask for a specific TTL::
 
   POST /create/ HTTP/1.1
   Content-Type: application/x-www-form-urlencoded
@@ -110,7 +133,8 @@ The service should then honor your request as such::
   {
     "id": "vJ2lWRKY",
     "base_url": "http://api.webhookinbox.com/i/vJ2lWRKY/",
-    "ttl": 300
+    "ttl": 300,
+    "response_mode": "auto"
   }
 
 If an inbox should survive longer than its TTL, then it will need to be periodically refreshed::
@@ -218,3 +242,59 @@ The HTTP streaming mechanism first responds with the text "[opened]" followed by
   { ... item ... }
 
 Non-browser applications may prefer using the streaming mechanism because the HTTP connection doesn't need to be closed after every received item. However, be aware that if the inbox needs to be refreshed to avoid expiration then the application must make refresh requests independently of the open stream. Simply having a stream open does not prevent the inbox from expiring. With the long-polling mechanism, on the other hand, the inbox ends up getting refreshed each time the client polls.
+
+Custom HTTP responses
+---------------------
+
+Normally, WebhookInbox automatically responds to all requests made against the inbox target URL. However, this behavior can be overridden by setting the ``response_mode`` parameter during inbox creation. This value may be "auto" (the default), "wait-verify", or "wait". If the mode is "wait", then WebhookInbox will not respond to any requests right away and will instead wait for responses to be provided via the ``/respond/`` endpoint. The "wait-verify" mode will cause WebhookInbox to wait only if a request is a PubSubHubbub verification request; all other requests will be automatically responded to in the usual way.
+
+Here's a request to create an inbox with a "wait-verify" response mode::
+
+  POST /create/ HTTP/1.1
+  Content-Type: application/x-www-form-urlencoded
+
+  response_mode=wait
+
+Server responds::
+
+  HTTP/1.1 200 OK
+  Content-Type: application/json
+
+  {
+    "id": "vJ2lWRKY",
+    "base_url": "http://api.webhookinbox.com/i/vJ2lWRKY/",
+    "ttl": 3600,
+    "response_mode": "wait"
+  }
+
+When a request arrives to the inbox target URL, its item's ``responded`` field will be set to false. Assuming the `Live updates`_ interface is used, this alerts the client to the fact that there is a pending HTTP request waiting for a response. To provide a response, the HTTP response data is sent as a POST to the ``/respond/`` endpoint for the inbox and request item id. The data is in JSON format.
+
+Here's a request to provide a response for item id 0 of the inbox::
+
+  POST /i/vJ2lWRKY/respond/0/ HTTP/1.1
+  Content-Type: application/json
+
+  {
+    "headers": {
+      "Content-Type": "text/plain"
+    },
+    "body": "a custom response\n"
+  }
+
+This information will then be used to respond to the pending request::
+
+  HTTP/1.1 200 OK
+  Content-Type: text/plain
+
+  a custom response
+
+The JSON format may include any or all of the following fields:
+
+  * ``code`` - Response status code (default 200).
+  * ``reason`` - Response status reason (default based on value of ``code``).
+  * ``headers`` - Response headers as a JSON object, where each key is a header's name and each key's value is a string representing that header's value (default no explicit headers).
+  * ``body`` - Response body (default empty).
+
+It is not necessary to supply a Content-Length header in the response headers. This header will be injected by WebhookInbox as needed.
+
+If a response is not provided within 20 seconds, WebhookInbox will automatically respond to the original request with status code 503 (Service Unavailable).
