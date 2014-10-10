@@ -31,7 +31,7 @@ Requirements
 Setup
 -----
 
-WebhookInbox is a Django App. An easy way to set things up is to use Apache, WSGI, and Pushpin. We'll assume you have everything installed and that your Django version is recent (1.4).
+WebhookInbox is a Django App. An easy way to set things up is to use Apache, WSGI, and Pushpin. We'll assume you have everything installed and that your Django version is recent (1.6).
 
 First, create a Django project and put the app inside:
 
@@ -54,7 +54,7 @@ Then add 'webhookinbox.api' to your INSTALLED_APPS. Also, make sure CsrfViewMidd
 
 Edit your urls.py to route to the app:
 
-    from django.conf.urls.defaults import patterns, include, url
+    from django.conf.urls import patterns, include, url
 
     urlpatterns = patterns('',
         url(r'', include('webhookinbox.api.urls')),
