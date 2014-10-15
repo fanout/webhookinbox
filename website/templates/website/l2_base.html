@@ -21,13 +21,17 @@
 {% block header %}
 <div class="header container {% block header_class %}header80 fixed-height{% endblock %}">
     <div class="row">
+        {% block header_log %}
         <div class="logo">
             <a href="/"><img src="/static/images/logo.png" /></a>
         </div>
+        {% endblock %}
         <div class="links">
-            <a href="/docs/api.html">API</a>
-            <a href="/about/">About</a>
-            <a href="/contact/">Contact</a>
+            <ul>
+                <li class="{% block nav_api %}{% endblock %}"><span class="arrow"></span><a href="/docs/api.html">API</a></li>
+                <li class="{% block nav_about %}{% endblock %}"><span class="arrow"></span><a href="/about/">About</a></li>
+                <li class="{% block nav_contact %}{% endblock %}"><span class="arrow"></span><a href="/contact/">Contact</a></li>
+            </ul>
         </div>
     </div>
 </div>
