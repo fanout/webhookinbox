@@ -21,6 +21,12 @@ a img {
     border: none;
 }
 
+.delete-inbox {
+    width: 20px;
+    height: 20px; 
+    margin-top: 10px;
+}
+
 .container {
     padding: 0 40px;
 }
@@ -64,10 +70,10 @@ a img {
     position: absolute;
     width: 0px;
     height: 0px;
-    top: -35px;
+    top: -32px;
     display: none;
     margin-left: 5px;
-    left: 50%;
+    left: 60%;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
     border-top: 10px solid black;
@@ -243,6 +249,17 @@ a img {
 
 .entry-item {
     margin-bottom: 10px;
+}
+
+.item-table-key {
+    width: 150px;
+    font: 12px Helvetica,Arial;
+}
+
+
+.item-table-value {
+    width: 600px;
+    font: 12px Helvetica,Arial;
 }
 
 .item-label {

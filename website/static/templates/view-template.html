@@ -14,6 +14,11 @@
         </div>
         -->
         <div class="target-autoupdates">
+            <div>
+            <a href="#" ng-mouseover="showText()" ng-mouseleave="hideText()"
+            onClick="return confirm('Are you really want to delete inbox?')" ng-click="deleteInbox($event)" href=""><img  class="delete-inbox" src="/static/images/delete-256.png" /></a> 
+            </div>
+
             <div class="label" ng-class="inbox.liveUpdates ? 'label-off' : 'label-on'" ng-click="toggleAuto()">
                 turn {{ inbox.liveUpdates ? "OFF" : "ON" }} auto updates
             </div>
@@ -71,14 +76,29 @@
                                 <span ng-show="entry.showHeaders">&#x25b2;</span>
                                 <span ng-show="!entry.showHeaders">&#x25bc;</span>
                             </div>
-                            <div ng-repeat="header in entry.headers" class="value" ng-show="entry.showHeaders">
+                            <!-- <div ng-repeat="header in entry.headers" class="value" ng-show="entry.showHeaders">
                                 <div class="item-label">
                                     {{header[0]}}
                                 </div>
                                 <div class="item-value">
                                     {{header[1]}}
                                 </div>
-                            </div>
+                            </div> -->
+                            <table border="1" cellpadding="4" cellspacing="0" ng-show="entry.showHeaders">
+                            <thead>
+                                <tr>
+                                    <th class="item-table-key">Key</th>
+                                    <th class="item-table-value">Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="header in entry.headers" class="value" >
+                                    <td class="item-table-key">{{header[0]}}</td>
+                                    <td class="item-table-value">{{header[1]}}</td>
+                                </tr>
+                            </tbody>
+                                 
+                            </table>
                         </div>
                         <div ng-show="entry.type == 'hub-verify'" class="entry-type-hub-verify">
                             <img src="/static/images/rss-icon.png" /> This PubSubHubbub verify request has been granted.

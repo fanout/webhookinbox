@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebhookInbox {% block title_suffix %}{% endblock %}</title>
+    <link rel="shortcut icon" href="/static/images/favicon.ico" />
+    {% block head_stylesheet %}
+    <link href="/static/styles/WebhookInbox.css" rel="stylesheet" />
+    {% endblock %}
+    <!--[if lte IE 8]>
+    <script src="/static/scripts/json2.js"></script>
+    <![endif]-->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"></script>
+    <script src="/static/scripts/pollymer-1.0.0.js"></script>
+    <script src="/static/scripts/WebhookInboxViewer.config.js"></script>
+    <script src="/static/scripts/WebhookInboxViewer.js"></script>
+    {% block google_analytics %}{% endblock %}
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+
+{% block header %}
+<div class="header container {% block header_class %}header80 fixed-height{% endblock %}">
+    <div class="row">
+        {% block header_log %}
+        <div class="logo">
+            <a href="/"><img src="/static/images/logo.png" /></a>
+        </div>
+        {% endblock %}
+        <div class="links">
+            <ul>
+                <li class="{% block nav_api %}{% endblock %}"><span class="arrow"></span><a href="/docs/api.html">API</a></li>
+                <li class="{% block nav_about %}{% endblock %}"><span class="arrow"></span><a href="/about/">About</a></li>
+                <li class="{% block nav_contact %}{% endblock %}"><span class="arrow"></span><a href="/contact/">Contact</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content_home %}{% endblock %}
+
+{% block content_container %}
+<div class="l2-content container">
+    <div class="row">
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+        <div class="sidebar">
+            {% block sidebar %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+<div class="footer container fixed-height">
+    <div class="row">
+        <div class="message">
+            Inspired by <a href="http://requestb.in/">RequestBin</a>, &copy;2014 <a href="http://fanout.io/">Fanout, Inc</a>.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+</body>
+</html>

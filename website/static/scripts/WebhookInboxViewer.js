@@ -18,6 +18,9 @@ WebhookInboxViewer.factory("Pollymer", function($q, $rootScope) {
                 get: function(url) {
                     return this.start('GET', url);
                 },
+                delete: function(url){
+                    return this.start('DELETE', url);
+                },
                 start: function(method, url) {
                     console.log("Pollymer " + id + "> start (" + method + ")");
                     var d = $q.defer();
@@ -81,6 +84,23 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
     var webhookId = $window.serverData.webhookId;
 
     $scope.animationMode = "static";
+
+    $scope.deleteInbox = function(ev){
+        var url = 'http:'+API_ENDPOINT + "i/"+webhookId+'/';
+        if(ev.defaultPrevented === false){
+            var pollymer = Pollymer.create();
+            pollymer.delete(url);
+            $window.location= '/';
+        }
+    }
+
+    $scope.showText = function(){
+        $scope.show_inbox_text = true;
+    }
+
+    $scope.hideText = function(){
+         $scope.show_inbox_text = false;
+    }
 
     $scope.getAnimationType = function() {
         return "animate-" + $scope.animationMode;
