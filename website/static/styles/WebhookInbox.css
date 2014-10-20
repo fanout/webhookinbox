@@ -74,7 +74,7 @@ a img {
     display: none;
     margin-left: 5px;
     left: 50%;
-    border-left: 10px solid transparent;
+    border-left: 11px solid transparent;
     border-right: 10px solid transparent;
     border-top: 10px solid black;
 }
