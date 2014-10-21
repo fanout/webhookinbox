@@ -85,7 +85,7 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
 
     $scope.animationMode = "static";
 
-    $scope.init = function(){
+    $scope.copyUrl = function(){
         console.log('Init >>>>');
        copyClipBoard();
     }
