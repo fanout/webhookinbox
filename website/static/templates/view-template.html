@@ -1,18 +1,19 @@
 <div class="target container">
     <div class="row">
         <div class="target-info" ng-show="webhookEndpoint.length > 0">
-            <div class="label">
-                INBOX TARGET URL:
+            <div class="targrt-left">
+                <div class="label">
+                    INBOX TARGET URL:
+                </div>
+                <div class="url">
+                    <a href="{{webhookInboxUrl()}}" target="_blank" id="copy_text">{{webhookInboxUrl()}}</a>
+                </div>
             </div>
-            <div class="url">
-                <a href="{{webhookInboxUrl()}}" target="_blank">{{webhookInboxUrl()}}</a>
+            <div class="target-right">
+               <button class="copy_clip_box" id="clip_button" 
+               ng-click="init()">Copy To Clipboard</button>
             </div>
         </div>
-        <!--
-        <div class="target-copy" ng-show="webhookEndpoint.length > 0">
-            <button ng-click="copy()">copy to clipboard</button>
-        </div>
-        -->
         <div class="target-autoupdates">
             <div>
             <a href="#" ng-mouseover="showText()" ng-mouseleave="hideText()"

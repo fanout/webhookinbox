@@ -85,6 +85,11 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
 
     $scope.animationMode = "static";
 
+    $scope.init = function(){
+        console.log('Init >>>>');
+       copyClipBoard();
+    }
+
     $scope.deleteInbox = function(ev){
         var url = 'http:'+API_ENDPOINT + "i/"+webhookId+'/';
         if(ev.defaultPrevented === false){
@@ -234,6 +239,19 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
         // No way to do this using pure javascript.
     };
 
+    function copyClipBoard(){
+         var client = new ZeroClipboard($('#clip_button'), {moviePath: "/static/scripts/ZeroClipboard.swf"});
+            var val = document.getElementById('copy_text').innerHTML;
+            console.log('Val >>> ', val);
+            client.on('ready', function(event) {
+                client.on('copy', function(event) {
+                    var clipboard = event.clipboardData;
+                    clipboard.setData("text/plain", val);
+                    alert('URL copied');
+                    //clipboard.setData("text/html", "HTML <b>DO NOT</b> work");
+                } );
+            } );
+    }
     // Set up the table update worker that flushes pending entries
     // when live updates are on.
     var tableUpdateWorker = function() {
