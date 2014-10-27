@@ -6,12 +6,12 @@
                     INBOX TARGET URL:
                 </div>
                 <div class="url">
-                    <a href="{{webhookInboxUrl()}}" target="_blank" id="copy_text" >{{webhookInboxUrl()}}</a>
+                <a href="{{webhookInboxUrl()}}" target="_blank" id="copy_text" ng-init="copyUrl()">{{webhookInboxUrl()}}</a>
                 </div>
             </div>
             <div class="target-right">
                <button class="copy_clip_box" id="clip_button" 
-               ng-click="copyUrl()">Copy To Clipboard</button>
+               >Copy To Clipboard</button>
             </div>
         </div>
         <div class="target-autoupdates">

@@ -240,8 +240,9 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
     };
 
     function copyClipBoard(){
-         var client = new ZeroClipboard($('#clip_button'), {moviePath: "/static/scripts/ZeroClipboard.swf"});
-            var val = document.getElementById('copy_text').innerHTML;
+        var val = 'http:'+API_ENDPOINT + "i/"+webhookId+'/in/';
+        var client = new ZeroClipboard($('#clip_button'), {moviePath: "/static/scripts/ZeroClipboard.swf"});
+            //var val = document.getElementById('copy_text').innerHTML;
             console.log('Val >>> ', val);
             client.on('ready', function(event) {
                 client.on('copy', function(event) {
