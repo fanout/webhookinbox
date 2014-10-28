@@ -1,7 +1,7 @@
 var API_ENDPOINT = Fanout.WebhookInboxViewer.config.apiEndpoint;
 var MAX_RESULTS = Fanout.WebhookInboxViewer.config.maxResults;
 
-var WebhookInboxViewer = angular.module('WebhookInboxViewer', []);
+var WebhookInboxViewer = angular.module('WebhookInboxViewer', ['jsonFormatter']);
 
 WebhookInboxViewer.factory("Pollymer", function($q, $rootScope) {
     var count = 0;
@@ -237,6 +237,15 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
     $scope.copy = function() {
         var endPoint = $scope.webhookEndpoint;
         // No way to do this using pure javascript.
+    };
+
+     $scope.IsJsonString = function (str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
     };
 
     function copyClipBoard(){
