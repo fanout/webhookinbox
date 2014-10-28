@@ -180,7 +180,7 @@ a img {
     -moz-transition: all 0.5s linear;
     -o-transition: all 0.5s linear;
     transition: all 0.5s linear;
-    max-height: 300px;
+    min-height: 100px;
     left: 0;
 }
 
