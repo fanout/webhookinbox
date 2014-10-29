@@ -21,8 +21,8 @@ class RedisOps(object):
 		self.host = 'localhost'
 		self.port = 6379
 		self.db = 0
-		self.item_max = 72000
-		self.item_burst_time = 120
+		self.item_max = 100
+		self.item_burst_time = 43200
 		self.item_burst_max = 1200
 		self.lock = threading.Lock()
 		self.redis = None

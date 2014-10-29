@@ -81,8 +81,8 @@
                         </div>
                         <div ng-show="entry.headers.length > 0" class="entry-item">
                             <div class="headers-label label" ng-click="entry.showHeaders = !entry.showHeaders">HEADERS
-                                <span ng-show="entry.showHeaders">&#x25b2;</span>
-                                <span ng-show="!entry.showHeaders">&#x25bc;</span>
+                                <span ng-show="entry.showHeaders">&#x25bc;</span>
+                                <span ng-show="!entry.showHeaders">&#x25b2;</span>
                             </div>
                             <!-- <div ng-repeat="header in entry.headers" class="value" ng-show="entry.showHeaders">
                                 <div class="item-label">
@@ -92,17 +92,17 @@
                                     {{header[1]}}
                                 </div>
                             </div> -->
-                            <table border="1" cellpadding="4" cellspacing="0" ng-show="entry.showHeaders">
-                            <thead>
+                            <table border="0" cellpadding="4" cellspacing="0" ng-show="entry.showHeaders">
+                            <!-- <thead>
                                 <tr>
                                     <th class="item-table-key">Key</th>
                                     <th class="item-table-value">Value</th>
                                 </tr>
-                            </thead>
+                            </thead> -->
                             <tbody>
-                                <tr ng-repeat="header in entry.headers" class="value" >
-                                    <td class="item-table-key">{{header[0]}}</td>
-                                    <td class="item-table-value">{{header[1]}}</td>
+                                <tr ng-repeat="header in entry.headers" class="" >
+                                    <td class="item-table-key">{{header[0]}} </td>
+                                    <td class="item-table-value" >{{header[1]}}</td>
                                 </tr>
                             </tbody>
                                  
