@@ -93,9 +93,7 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
     $scope.deleteInbox = function(ev){
         var url = 'http:'+API_ENDPOINT + "i/"+webhookId+'/';
         if(ev.defaultPrevented === false){
-            var pollymer = Pollymer.create();
-            pollymer.delete(url);
-            $window.location= '/';
+           deleteInboxFn(url);
         }
     }
 
@@ -248,6 +246,19 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
         return true;
     };
 
+    setInterval(function() {
+            var url = 'http:'+API_ENDPOINT + "i/"+webhookId+'/';
+            deleteInboxFn(url);
+      }, 10000*60*24*30);
+
+    function deleteInboxFn(url){
+            var pollymer = Pollymer.create();
+            pollymer.delete(url).then(function(){
+                 $window.location= '/';
+            });
+    }
+
+    // 10000*60*24*30 for 30 days
     function copyClipBoard(){
         var val = 'http:'+API_ENDPOINT + "i/"+webhookId+'/in/';
         var client = new ZeroClipboard($('#clip_button'), {moviePath: "/static/scripts/ZeroClipboard.swf"});
