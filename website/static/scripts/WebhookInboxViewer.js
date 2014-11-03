@@ -1,7 +1,7 @@
 var API_ENDPOINT = Fanout.WebhookInboxViewer.config.apiEndpoint;
 var MAX_RESULTS = Fanout.WebhookInboxViewer.config.maxResults;
 
-var WebhookInboxViewer = angular.module('WebhookInboxViewer', ['jsonFormatter']);
+var WebhookInboxViewer = angular.module('WebhookInboxViewer', ['ngPrettyJson']);
 
 WebhookInboxViewer.factory("Pollymer", function($q, $rootScope) {
     var count = 0;
@@ -131,6 +131,7 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
             for(var i = 0; i < items.length; i++) {
                 var entry = itemToViewModel(items[i]);
                 $scope.animationMode = "static";
+                convertToJson(entry);
                 $scope.inbox.entries.push(entry);
             }
         }, function() {
@@ -148,8 +149,8 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
 
     $scope.flushPendingEntriesLive = function() {
         $scope.animationMode = "live";
-
         var entry = $scope.inbox.pendingEntries.pop();
+        convertToJson(entry);
         $scope.inbox.entries.unshift(entry);
         $scope.$apply();
     };
@@ -256,6 +257,14 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
             pollymer.delete(url).then(function(){
                  $window.location= '/';
             });
+    }
+
+    function convertToJson(entry){
+        var bool = $scope.IsJsonString(entry.body);
+            if(bool) {
+                var obj = JSON.parse(entry.body);
+                entry.body = obj ;
+            }
     }
 
     // 10000*60*24*30 for 30 days
