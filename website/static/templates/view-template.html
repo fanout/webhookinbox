@@ -1,19 +1,25 @@
 <div class="target container">
     <div class="row">
         <div class="target-info" ng-show="webhookEndpoint.length > 0">
-            <div class="label">
-                INBOX TARGET URL:
+            <div class="targrt-left">
+                <div class="label">
+                    INBOX TARGET URL:
+                </div>
+                <div class="url">
+                <a href="{{webhookInboxUrl()}}" target="_blank" id="copy_text" ng-init="copyUrl()">{{webhookInboxUrl()}}</a>
+                </div>
             </div>
-            <div class="url">
-                <a href="{{webhookInboxUrl()}}" target="_blank">{{webhookInboxUrl()}}</a>
+            <div class="target-right">
+               <button class="copy_clip_box" id="clip_button" 
+               >Copy To Clipboard</button>
             </div>
         </div>
-        <!--
-        <div class="target-copy" ng-show="webhookEndpoint.length > 0">
-            <button ng-click="copy()">copy to clipboard</button>
-        </div>
-        -->
         <div class="target-autoupdates">
+            <div>
+            <a href="#" ng-mouseover="showText()" ng-mouseleave="hideText()"
+            onClick="return confirm('Are you really want to delete inbox?')" ng-click="deleteInbox($event)" href=""><img  class="delete-inbox" src="/static/images/delete-256.png" /></a> 
+            </div>
+
             <div class="label" ng-class="inbox.liveUpdates ? 'label-off' : 'label-on'" ng-click="toggleAuto()">
                 turn {{ inbox.liveUpdates ? "OFF" : "ON" }} auto updates
             </div>
@@ -60,7 +66,14 @@
                     <div class="entry-inner-body">
                         <div class="entry-item" ng-show="entry.body">
                             <div class="label">POST CONTENT:</div>
-                            <div class="value">{{entry.body}}</div>
+                              <div class="value" > 
+                                <div ng-if="IsJsonString(entry.body) === false">
+                                        <pretty-json json="entry.body"></pretty-json>
+                                </div>
+                                <div ng-if="IsJsonString(entry.body) === true">
+                                     <div class="value">{{ entry.body}}</div>
+                                </div>
+                               </div>
                         </div>
                         <div class="entry-item" ng-show="entry.query">
                             <div class="label">QUERY:</div>
@@ -68,17 +81,32 @@
                         </div>
                         <div ng-show="entry.headers.length > 0" class="entry-item">
                             <div class="headers-label label" ng-click="entry.showHeaders = !entry.showHeaders">HEADERS
-                                <span ng-show="entry.showHeaders">&#x25b2;</span>
-                                <span ng-show="!entry.showHeaders">&#x25bc;</span>
+                                <span ng-show="entry.showHeaders">&#x25bc;</span>
+                                <span ng-show="!entry.showHeaders">&#x25b2;</span>
                             </div>
-                            <div ng-repeat="header in entry.headers" class="value" ng-show="entry.showHeaders">
+                            <!-- <div ng-repeat="header in entry.headers" class="value" ng-show="entry.showHeaders">
                                 <div class="item-label">
                                     {{header[0]}}
                                 </div>
                                 <div class="item-value">
                                     {{header[1]}}
                                 </div>
-                            </div>
+                            </div> -->
+                            <table border="0" cellpadding="4" cellspacing="0" ng-show="entry.showHeaders">
+                            <!-- <thead>
+                                <tr>
+                                    <th class="item-table-key">Key</th>
+                                    <th class="item-table-value">Value</th>
+                                </tr>
+                            </thead> -->
+                            <tbody>
+                                <tr ng-repeat="header in entry.headers" class="" >
+                                    <td class="item-table-key">{{header[0]}} </td>
+                                    <td class="item-table-value" >{{header[1]}}</td>
+                                </tr>
+                            </tbody>
+                                 
+                            </table>
                         </div>
                         <div ng-show="entry.type == 'hub-verify'" class="entry-type-hub-verify">
                             <img src="/static/images/rss-icon.png" /> This PubSubHubbub verify request has been granted.
