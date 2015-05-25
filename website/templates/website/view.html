@@ -1,16 +1,16 @@
-<!DOCTYPE html>
+{% load staticfiles %}<!DOCTYPE html>
 <html>
 <head>
     <title>WebhookInbox Viewer</title>
-    <link rel="shortcut icon" href="/static/images/favicon.ico" />
-    <link href="/static/styles/WebhookInboxViewer.css" rel="stylesheet" />
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+    <link href="{% static 'styles/WebhookInboxViewer.css' %}" rel="stylesheet" />
     <!--[if lte IE 8]>
-    <script src="/static/scripts/json2.js"></script>
+    <script src="{% static 'scripts/json2.js' %}"></script>
     <![endif]-->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"></script>
-    <script src="/static/scripts/pollymer-1.0.0.js"></script>
-    <script src="/static/scripts/WebhookInboxViewer.config.js"></script>
-    <script src="/static/scripts/WebhookInboxViewer.js"></script>
+    <script src="{% static 'scripts/pollymer-1.0.0.js' %}"></script>
+    <script src="{% static 'scripts/WebhookInboxViewer.config.js' %}"></script>
+    <script src="{% static 'scripts/WebhookInboxViewer.js' %}"></script>
     <script>
         window.serverData = { webhookId: "{{ inbox_id }}" };
     </script>
@@ -21,7 +21,7 @@
 <div class="header container">
     <div class="row">
         <div class="logo">
-            <a href="/"><img src="/static/images/logo.png" /></a>
+            <a href="/"><img src="{% static 'images/logo.png' %}" /></a>
         </div>
         <div class="links">
             <a href="/docs/api.html">API</a>
@@ -31,13 +31,13 @@
     </div>
 </div>
 
-<div ng-app="WebhookInboxViewer" ng-controller="WebhookInboxCtrl" ng-include="'/static/templates/view-template.html'">
+<div ng-app="WebhookInboxViewer" ng-controller="WebhookInboxCtrl" ng-include="'{% static 'templates/view-template.html' %}'">
 </div>
 
 <div class="footer container">
     <div class="row">
         <div class="message">
-            Inspired by <a href="http://requestb.in/">RequestBin</a>, &copy;2013 <a href="http://fanout.io/">Fanout, Inc</a>.
+            Inspired by <a href="http://requestb.in/">RequestBin</a>, &copy;2015 <a href="http://fanout.io/">Fanout, Inc</a>.
         </div>
     </div>
 </div>

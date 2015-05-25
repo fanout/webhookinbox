@@ -1,8 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+from . import views
 
-urlpatterns = patterns('webhookinbox.website.views',
-	url(r'^$', 'home'),
-	url(r'^view/(?P<inbox_id>[^/]+)/$', 'view'),
-	url(r'^about/$', 'about'),
-	url(r'^contact/$', 'contact'),
-)
+urlpatterns = [
+	url(r'^$', views.home, name='home'),
+	url(r'^view/(?P<inbox_id>[^/]+)/$', views.view, name='view'),
+	url(r'^about/$', views.about, name='about'),
+	url(r'^contact/$', views.contact, name='contact')
+]

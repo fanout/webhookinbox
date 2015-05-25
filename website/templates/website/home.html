@@ -1,16 +1,16 @@
-<!DOCTYPE html>
+{% load staticfiles %}<!DOCTYPE html>
 <html>
 <head>
     <title>WebhookInbox</title>
-    <link rel="shortcut icon" href="/static/images/favicon.ico" />
-    <link href="/static/styles/WebhookInbox.css" rel="stylesheet" />
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+    <link href="{% static 'styles/WebhookInbox.css' %}" rel="stylesheet" />
     <!--[if lte IE 8]>
-    <script src="/static/scripts/json2.js"></script>
+    <script src="{% static 'scripts/json2.js' %}"></script>
     <![endif]-->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"></script>
-    <script src="/static/scripts/pollymer-1.0.0.js"></script>
-    <script src="/static/scripts/WebhookInboxViewer.config.js"></script>
-    <script src="/static/scripts/WebhookInboxViewer.js"></script>
+    <script src="{% static 'scripts/pollymer-1.0.0.js' %}"></script>
+    <script src="{% static 'scripts/WebhookInboxViewer.config.js' %}"></script>
+    <script src="{% static 'scripts/WebhookInboxViewer.js' %}"></script>
     <script type="text/javascript">
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -37,7 +37,7 @@
 <div class="description container fixed-height">
     <div class="row">
         <div class="logo">
-            <img src="/static/images/logo-home.png" />
+            <img src="{% static 'images/logo-home.png' %}" />
         </div>
         <div class="copy-main">
             WebhookInbox receives HTTP requests and<br />
@@ -54,7 +54,7 @@
 <div class="main container fixed-height">
     <div class="row">
         <div class="content">
-            <div ng-app="WebhookInboxViewer" ng-controller="HomeCtrl" ng-include="'/static/templates/home-template.html'">
+            <div ng-app="WebhookInboxViewer" ng-controller="HomeCtrl" ng-include="'{% static 'templates/home-template.html' %}'">
             </div>
         </div>
     </div>
@@ -63,7 +63,7 @@
 <div class="footer container fixed-height">
     <div class="row">
         <div class="message">
-            Inspired by <a href="http://requestb.in/">RequestBin</a>, &copy;2013 <a href="http://fanout.io/">Fanout, Inc</a>.
+            Inspired by <a href="http://requestb.in/">RequestBin</a>, &copy;2015 <a href="http://fanout.io/">Fanout, Inc</a>.
         </div>
     </div>
 </div>

@@ -123,7 +123,7 @@ def _req_to_item(req):
 				tmp.append(h)
 		headers = tmp
 	item['headers'] = headers
-	if len(req.raw_post_data) > 0:
+	if len(req.body) > 0:
 		try:
 			# if the body is valid utf-8, then store as text
 			body = req.raw_post_data.decode('utf-8')

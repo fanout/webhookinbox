@@ -1,2 +1,6 @@
+.env
+venv
+*.pyc
+
 # Config files (add the *.config.template.js to Git instead)
 *.config.js

@@ -41,4 +41,4 @@ class Publisher(object):
 		item = pubcontrol.Item(formats, id, prev_id)
 
 		for pub in self.pubs:
-			pub.publish_async(channel, item)
+			pub.publish(channel, item)
