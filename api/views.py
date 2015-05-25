@@ -168,10 +168,8 @@ def create(req):
 		if ttl is not None:
 			ttl = int(ttl)
 		if ttl is None:
-			ttl = 2592000
-			# 2592000 - for 30 days
-			# 86400 - for an hour	
-			
+			ttl = 3600
+
 		response_mode = req.POST.get('response_mode')
 		if not response_mode:
 			response_mode = 'auto'

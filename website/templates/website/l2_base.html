@@ -1,49 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>WebhookInbox {% block title_suffix %}{% endblock %}</title>
+    <title>WebhookInbox{% block title_suffix %}{% endblock %}</title>
     <link rel="shortcut icon" href="/static/images/favicon.ico" />
-    {% block head_stylesheet %}
     <link href="/static/styles/WebhookInbox.css" rel="stylesheet" />
-    {% endblock %}
-    <link href="/static/styles/ng-prettyjson.css" type="text/css" rel="stylesheet" />
     <!--[if lte IE 8]>
     <script src="/static/scripts/json2.js"></script>
     <![endif]-->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"></script>
-    <script type="text/javascript"  src="/static/scripts/ng-prettyjson.js"></script>
-    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="/static/scripts/ZeroClipboard.js"></script>
     <script src="/static/scripts/pollymer-1.0.0.js"></script>
     <script src="/static/scripts/WebhookInboxViewer.config.js"></script>
     <script src="/static/scripts/WebhookInboxViewer.js"></script>
-    {% block google_analytics %}{% endblock %}
-    {% block head_extra %}{% endblock %}
 </head>
 <body>
 
-{% block header %}
-<div class="header container {% block header_class %}header80 fixed-height{% endblock %}">
+<div class="header header80 container fixed-height">
     <div class="row">
-        {% block header_log %}
         <div class="logo">
             <a href="/"><img src="/static/images/logo.png" /></a>
         </div>
-        {% endblock %}
         <div class="links">
-            <ul>
-                <li class="{% block nav_api %}{% endblock %}"><span class="arrow"></span><a href="/docs/api.html">API</a></li>
-                <li class="{% block nav_about %}{% endblock %}"><span class="arrow"></span><a href="/about/">About</a></li>
-                <li class="{% block nav_contact %}{% endblock %}"><span class="arrow"></span><a href="/contact/">Contact</a></li>
-            </ul>
+            <a href="/docs/api.html">API</a>
+            <a href="/about/">About</a>
+            <a href="/contact/">Contact</a>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block content_home %}{% endblock %}
-
-{% block content_container %}
 <div class="l2-content container">
     <div class="row">
         <div class="content">
@@ -54,17 +37,14 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block footer %}
 <div class="footer container fixed-height">
     <div class="row">
         <div class="message">
-            Inspired by <a href="http://requestb.in/">RequestBin</a>, &copy;2014 <a href="http://fanout.io/">Fanout, Inc</a>.
+            Inspired by <a href="http://requestb.in/">RequestBin</a>, &copy;2013 <a href="http://fanout.io/">Fanout, Inc</a>.
         </div>
     </div>
 </div>
-{% endblock %}
 
 </body>
 </html>

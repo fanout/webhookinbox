@@ -1,7 +1,7 @@
 var API_ENDPOINT = Fanout.WebhookInboxViewer.config.apiEndpoint;
 var MAX_RESULTS = Fanout.WebhookInboxViewer.config.maxResults;
 
-var WebhookInboxViewer = angular.module('WebhookInboxViewer', ['ngPrettyJson']);
+var WebhookInboxViewer = angular.module('WebhookInboxViewer', []);
 
 WebhookInboxViewer.factory("Pollymer", function($q, $rootScope) {
     var count = 0;
@@ -17,9 +17,6 @@ WebhookInboxViewer.factory("Pollymer", function($q, $rootScope) {
                 },
                 get: function(url) {
                     return this.start('GET', url);
-                },
-                delete: function(url){
-                    return this.start('DELETE', url);
                 },
                 start: function(method, url) {
                     console.log("Pollymer " + id + "> start (" + method + ")");
@@ -85,26 +82,6 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
 
     $scope.animationMode = "static";
 
-    $scope.copyUrl = function(){
-        console.log('Init >>>>');
-       copyClipBoard();
-    }
-
-    $scope.deleteInbox = function(ev){
-        var url = 'http:'+API_ENDPOINT + "i/"+webhookId+'/';
-        if(ev.defaultPrevented === false){
-           deleteInboxFn(url);
-        }
-    }
-
-    $scope.showText = function(){
-        $scope.show_inbox_text = true;
-    }
-
-    $scope.hideText = function(){
-         $scope.show_inbox_text = false;
-    }
-
     $scope.getAnimationType = function() {
         return "animate-" + $scope.animationMode;
     };
@@ -131,7 +108,6 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
             for(var i = 0; i < items.length; i++) {
                 var entry = itemToViewModel(items[i]);
                 $scope.animationMode = "static";
-                convertToJson(entry);
                 $scope.inbox.entries.push(entry);
             }
         }, function() {
@@ -149,8 +125,8 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
 
     $scope.flushPendingEntriesLive = function() {
         $scope.animationMode = "live";
+
         var entry = $scope.inbox.pendingEntries.pop();
-        convertToJson(entry);
         $scope.inbox.entries.unshift(entry);
         $scope.$apply();
     };
@@ -238,50 +214,6 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
         // No way to do this using pure javascript.
     };
 
-     $scope.IsJsonString = function (str) {
-        try {
-            JSON.parse(str);
-        } catch (e) {
-            return false;
-        }
-        return true;
-    };
-
-    setInterval(function() {
-            var url = 'http:'+API_ENDPOINT + "i/"+webhookId+'/';
-            deleteInboxFn(url);
-      }, 10000*60*24*30);
-
-    function deleteInboxFn(url){
-            var pollymer = Pollymer.create();
-            pollymer.delete(url).then(function(){
-                 $window.location= '/';
-            });
-    }
-
-    function convertToJson(entry){
-        var bool = $scope.IsJsonString(entry.body);
-            if(bool) {
-                var obj = JSON.parse(entry.body);
-                entry.body = obj ;
-            }
-    }
-
-    // 10000*60*24*30 for 30 days
-    function copyClipBoard(){
-        var val = 'http:'+API_ENDPOINT + "i/"+webhookId+'/in/';
-        var client = new ZeroClipboard($('#clip_button'), {moviePath: "/static/scripts/ZeroClipboard.swf"});
-            //var val = document.getElementById('copy_text').innerHTML;
-            console.log('Val >>> ', val);
-            client.on('ready', function(event) {
-                client.on('copy', function(event) {
-                    var clipboard = event.clipboardData;
-                    clipboard.setData("text/plain", val);
-                    alert('URL copied');
-                    //clipboard.setData("text/html", "HTML <b>DO NOT</b> work");
-                } );
-            } );
-    }
     // Set up the table update worker that flushes pending entries
     // when live updates are on.
     var tableUpdateWorker = function() {
