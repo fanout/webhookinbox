@@ -5,13 +5,11 @@ dj-database-url==0.3.0
 dj-static==0.0.6
 django-grip==1.6.1
 django-hosts==1.2
-django-toolbelt==0.0.1
 gripcontrol==2.4.1
 gunicorn==19.3.0
-pubcontrol==2.2.5
+pubcontrol==2.2.6
 redis==2.10.3
 requests==2.7.0
 static3==0.6.1
-tnetstring==0.2.1
 whitenoise==1.0.6
 wsgiref==0.1.2
