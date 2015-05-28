@@ -118,11 +118,10 @@ def _req_to_item(req):
 	if len(req.body) > 0:
 		try:
 			# if the body is valid utf-8, then store as text
-			body = req.raw_post_data.decode('utf-8')
-			item['body'] = body
+			item['body'] = req.body.decode('utf-8')
 		except:
 			# else, store as binary
-			item['body-bin'] = b64encode(req.raw_post_data)
+			item['body-bin'] = b64encode(req.body)
 	forwardedfor = req.META.get('HTTP_X_FORWARDED_FOR')
 	if forwardedfor:
 		ip_address = forwardedfor.split(',')[0].strip()
@@ -249,7 +248,7 @@ def refresh(req, inbox_id):
 def respond(req, inbox_id, item_id):
 	if req.method == 'POST':
 		try:
-			content = json.loads(req.raw_post_data)
+			content = json.loads(req.body)
 		except:
 			return HttpResponseBadRequest('Bad Request: Body must be valid JSON\n')
 
