@@ -143,6 +143,12 @@ LOGGING = {
     }
 }
 
+REDIS_HOST = os.environ.get('REDIS_HOST')
+if 'REDIS_PORT' in os.environ:
+	REDIS_PORT = int(os.environ['REDIS_PORT'])
+if 'REDIS_DB' in os.environ:
+	REDIS_DB = int(os.environ['REDIS_DB'])
+
 from gripcontrol import parse_grip_uri
 
 GRIP_PROXY_REQUIRED = True
@@ -151,3 +157,4 @@ if 'GRIP_URL' in os.environ:
 	GRIP_PROXIES = [parse_grip_uri(os.environ['GRIP_URL'])]
 
 WHINBOX_API_BASE = os.environ.get('API_BASE')
+WHINBOX_ORIG_HEADERS = (os.environ.get('ORIG_HEADERS', '0') == '1')

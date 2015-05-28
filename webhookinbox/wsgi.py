@@ -14,8 +14,12 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "webhookinbox.settings")
 vars = (
 	'DJANGO_SECRET_KEY',
 	'DJANGO_DEBUG',
+	'REDIS_HOST',
+	'REDIS_PORT',
+	'REDIS_DB',
 	'GRIP_URL',
-	'API_BASE'
+	'API_BASE',
+	'ORIG_HEADERS',
 )
 
 from django.core.wsgi import get_wsgi_application
