@@ -11,12 +11,23 @@ import os
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "webhookinbox.settings")
 
+vars = (
+	'DJANGO_SECRET_KEY',
+	'DJANGO_DEBUG',
+	'GRIP_URL',
+	'API_BASE'
+)
+
 from django.core.wsgi import get_wsgi_application
 from django.conf import settings
 
-if not settings.DEBUG:
-	from whitenoise.django import DjangoWhiteNoise
-	application = DjangoWhiteNoise(get_wsgi_application())
-else:
-	from dj_static import Cling
-	application = Cling(get_wsgi_application())
+def application(environ, start_response):
+	for var in vars:
+		if var in environ:
+			os.environ[var] = environ[var]
+	if not settings.DEBUG:
+		from whitenoise.django import DjangoWhiteNoise
+		return DjangoWhiteNoise(get_wsgi_application())(environ, start_response)
+	else:
+		from dj_static import Cling
+		return Cling(get_wsgi_application())(environ, start_response)
