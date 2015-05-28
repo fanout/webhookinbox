@@ -16,14 +16,13 @@ WebhookInbox is offered under the MIT license. See the COPYING file.
 Requirements
 ------------
 
-  * redis
-  * pushpin (or fanout.io)
-  * a web server
+  * Redis
+  * Pushpin (or Fanout.io)
 
 Setup
 -----
 
-WebhookInbox is a Django App. Set it up with virtualenv like this:
+WebhookInbox is a Django application. Set it up with virtualenv like this:
 
     virtualenv venv
     source venv/bin/activate
@@ -68,4 +67,7 @@ You can run the command at anytime like this:
 
 Stick it in cron:
 
-    * * * * * cd /path/to/webhookinbox && source venv/bin/activate && python manage.py cleanup >/dev/null 2>&1
+    * * * * * cd /path/to/webhookinbox && source venv/bin/activate && python manage.py
+        cleanup >/dev/null 2>&1
+
+(lines wrapped for readability)
