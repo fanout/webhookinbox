@@ -1,14 +1,24 @@
+from django.conf import settings
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 
+def _page(request, name, inbox_id=None):
+	assert(settings.WHINBOX_API_BASE)
+	context = {
+		'api_base_uri': settings.WHINBOX_API_BASE,
+	}
+	if inbox_id:
+		context['inbox_id'] = inbox_id
+	return render_to_response('website/%s.html' % name, context, context_instance=RequestContext(request))
+
 def home(request):
-	return render_to_response('website/home.html', {}, context_instance=RequestContext(request))
+	return _page(request, 'home')
 
 def view(request, inbox_id):
-	return render_to_response('website/view.html', { 'inbox_id': inbox_id }, context_instance=RequestContext(request))
+	return _page(request, 'view', inbox_id=inbox_id)
 
 def about(request):
-	return render_to_response('website/about.html', {}, context_instance=RequestContext(request))
+	return _page(request, 'about')
 
 def contact(request):
-	return render_to_response('website/contact.html', {}, context_instance=RequestContext(request))
+	return _page(request, 'contact')

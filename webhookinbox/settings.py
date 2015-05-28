@@ -43,6 +43,7 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'django_grip.GripMiddleware',
     'django_hosts.middleware.HostsRequestMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -144,8 +145,9 @@ LOGGING = {
 
 from gripcontrol import parse_grip_uri
 
+GRIP_PROXY_REQUIRED = True
 GRIP_PREFIX = 'whinbox-'
 if 'GRIP_URL' in os.environ:
 	GRIP_PROXIES = [parse_grip_uri(os.environ['GRIP_URL'])]
 
-WHINBOX_API_BASE = os.environ.get('API_BASE', '')
+WHINBOX_API_BASE = os.environ.get('API_BASE')

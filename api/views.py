@@ -4,12 +4,11 @@ import copy
 import json
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseNotAllowed
-import gripcontrol
-import grip
+from gripcontrol import Channel, HttpResponseFormat, HttpStreamFormat
+from django_grip import set_hold_longpoll, set_hold_stream, publish
 import redis_ops
 
 db = redis_ops.RedisOps()
-pub = grip.Publisher()
 
 if hasattr(settings, 'REDIS_HOST'):
 	db.host = settings.REDIS_HOST
@@ -20,11 +19,6 @@ if hasattr(settings, 'REDIS_PORT'):
 if hasattr(settings, 'REDIS_DB'):
 	db.db = settings.REDIS_DB
 
-if hasattr(settings, 'GRIP_PROXIES'):
-	grip_proxies = settings.GRIP_PROXIES
-else:
-	grip_proxies = list()
-
 if hasattr(settings, 'WHINBOX_REDIS_PREFIX'):
 	db.prefix = settings.WHINBOX_REDIS_PREFIX
 else:
@@ -33,7 +27,7 @@ else:
 if hasattr(settings, 'WHINBOX_GRIP_PREFIX'):
 	grip_prefix = settings.WHINBOX_GRIP_PREFIX
 else:
-	grip_prefix = 'wi-'
+	grip_prefix = ''
 
 if hasattr(settings, 'WHINBOX_ITEM_MAX'):
 	db.item_max = settings.WHINBOX_ITEM_MAX
@@ -48,8 +42,6 @@ if hasattr(settings, 'WHINBOX_ORIG_HEADERS'):
 	orig_headers = True
 else:
 	orig_headers = False
-
-pub.proxies = grip_proxies
 
 # useful list derived from requestbin
 ignore_headers = """
@@ -229,11 +221,7 @@ def inbox(req, inbox_id):
 			return HttpResponse('Service Unavailable\n', status=503)
 
 		# we'll push a 404 to any long polls because we're that cool
-		hr_headers = dict()
-		hr_headers['Content-Type'] = 'text/html'
-		hr_body = 'Not Found\n'
-
-		pub.publish(grip_prefix + 'inbox-' + inbox_id, None, None, hr_headers, hr_body, code=404)
+		publish(grip_prefix + 'inbox-%s' % inbox_id, HttpResponseFormat(code=404, headers={'Content-Type': 'text/html'}, body='Not Found\n'))
 
 		return HttpResponse('Deleted\n')
 	else:
@@ -293,7 +281,7 @@ def respond(req, inbox_id, item_id):
 		except:
 			return HttpResponse('Service Unavailable\n', status=503)
 
-		pub.publish(grip_prefix + 'wait-' + inbox_id + '-' + item_id, None, None, headers, body, None, code, reason)
+		publish(grip_prefix + 'wait-%s-%s' % (inbox_id, item_id), HttpResponseFormat(code=code, reason=reason, headers=headers, body=body))
 
 		return HttpResponse('Ok\n')
 	else:
@@ -350,7 +338,10 @@ def hit(req, inbox_id):
 	hr_body = json.dumps(hr) + '\n'
 	hs_body = json.dumps(item) + '\n'
 
-	pub.publish(grip_prefix + 'inbox-' + inbox_id, item_id, prev_id, hr_headers, hr_body, hs_body)
+	formats = list()
+	formats.append(HttpResponseFormat(headers=hr_headers, body=hr_body))
+	formats.append(HttpStreamFormat(hs_body))
+	publish(grip_prefix + 'inbox-%s' % inbox_id, formats, id=item_id, prev_id=prev_id)
 
 	if respond_now:
 		if hub_challenge:
@@ -358,18 +349,10 @@ def hit(req, inbox_id):
 		else:
 			return HttpResponse('Ok\n')
 	else:
-		if not grip.is_proxied(req, grip_proxies):
-			return HttpResponse('Not Implemented\n', status=501)
-
 		# wait for the user to respond
 		db.request_add_pending(inbox_id, item_id)
-		channel = gripcontrol.Channel(grip_prefix + 'wait-' + inbox_id + '-' + item_id)
-		theaders = dict()
-		theaders['Content-Type'] = 'text/html'
-		tbody = 'Service Unavailable\n'
-		tresponse = gripcontrol.Response(code=503, headers=theaders, body=tbody)
-		instruct = gripcontrol.create_hold_response(channel, tresponse)
-		return HttpResponse(instruct, content_type='application/grip-instruct')
+		set_hold_longpoll(req, grip_prefix + 'wait-%s-%s' % (inbox_id, item_id))
+		return HttpResponse('Service Unavailable\n', status=503, content_type='text/html')
 
 def items(req, inbox_id):
 	if req.method == 'GET':
@@ -429,28 +412,20 @@ def items(req, inbox_id):
 			except:
 				return HttpResponse('Service Unavailable\n', status=503)
 
-			if len(items) > 0:
-				out = dict()
-				out['last_cursor'] = last_id
-				out_items = list()
-				for i in items:
-					out_items.append(_convert_item(i, not db.request_is_pending(inbox_id, i['id'])))
-				out['items'] = out_items
-				return HttpResponse(json.dumps(out) + '\n', content_type='application/json')
+			out = dict()
+			out['last_cursor'] = last_id
+			out_items = list()
+			for i in items:
+				out_items.append(_convert_item(i, not db.request_is_pending(inbox_id, i['id'])))
+			out['items'] = out_items
 
-			if not grip.is_proxied(req, grip_proxies):
-				return HttpResponse('Not Implemented\n', status=501)
+			if len(items) == 0:
+				set_hold_longpoll(req, Channel(grip_prefix + 'inbox-%s' % inbox_id, last_id))
 
-			channel = gripcontrol.Channel(grip_prefix + 'inbox-' + inbox_id, last_id)
-			theaders = dict()
-			theaders['Content-Type'] = 'application/json'
-			tbody = dict()
-			tbody['last_cursor'] = last_id
-			tbody['items'] = list()
-			tbody_raw = json.dumps(tbody) + '\n'
-			tresponse = gripcontrol.Response(headers=theaders, body=tbody_raw)
-			instruct = gripcontrol.create_hold_response(channel, tresponse)
-			return HttpResponse(instruct, content_type='application/grip-instruct')
+			out = dict()
+			out['last_cursor'] = last_id
+			out['items'] = list()
+			return HttpResponse(json.dumps(out) + '\n', content_type='application/json')
 		else: # -created
 			try:
 				items, last_id, eof = db.inbox_get_items_before(inbox_id, item_id, imax)
@@ -483,14 +458,7 @@ def stream(req, inbox_id):
 		except:
 			return HttpResponse('Service Unavailable\n', status=503)
 
-		if not grip.is_proxied(req, grip_proxies):
-			return HttpResponse('Not Implemented\n', status=501)
-
-		rheaders = dict()
-		rheaders['Content-Type'] = 'text/plain'
-		response = gripcontrol.Response(headers=rheaders, body='[opened]\n')
-
-		instruct = gripcontrol.create_hold_stream(grip_prefix + 'inbox-' + inbox_id, response)
-		return HttpResponse(instruct, content_type='application/grip-instruct')
+		set_hold_stream(req, grip_prefix + 'inbox-%s' % inbox_id)
+		return HttpResponse('[opened]\n', content_type='text/plain')
 	else:
 		return HttpResponseNotAllowed(['GET'])

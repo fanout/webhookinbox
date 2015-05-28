@@ -1,5 +1,5 @@
-var API_ENDPOINT = Fanout.WebhookInboxViewer.config.apiEndpoint;
-var MAX_RESULTS = Fanout.WebhookInboxViewer.config.maxResults;
+var API_ENDPOINT = window.serverData.apiEndpoint;
+var MAX_RESULTS = window.serverData.maxResults;
 
 var WebhookInboxViewer = angular.module('WebhookInboxViewer', []);
 
@@ -60,7 +60,7 @@ WebhookInboxViewer.controller("HomeCtrl", function ($scope, $window, Pollymer) {
     
     $scope.create = function() {
         $scope.creating = true;
-        var url = API_ENDPOINT + "create/";
+        var url = API_ENDPOINT + "/create/";
         var pollymer = Pollymer.create();
         var poll = pollymer.post(url);
         poll.then(function(result) {
@@ -140,7 +140,7 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
 
     var longPollymer = null;
     var longPoll = function(id) {
-        var url = API_ENDPOINT + "i/" + webhookId + "/items/?order=created";
+        var url = API_ENDPOINT + "/i/" + webhookId + "/items/?order=created";
 
         if (id) {
             url += "&since=id:" + id;
@@ -178,7 +178,7 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
     };
 
     var initial = function() {
-        var url = API_ENDPOINT + "i/" + webhookId + "/items/?order=-created&max=" + MAX_RESULTS;
+        var url = API_ENDPOINT + "/i/" + webhookId + "/items/?order=-created&max=" + MAX_RESULTS;
 
         // initial load
         var poll = handlePastFetch(url);
@@ -189,7 +189,7 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
                 prefix = "http:";
             }
             
-            $scope.webhookEndpoint = prefix + API_ENDPOINT + "i/" + webhookId + "/";
+            $scope.webhookEndpoint = prefix + API_ENDPOINT + "/i/" + webhookId + "/";
             var id = ("result" in result && "items" in result.result && result.result.items.length) ? result.result.items[0].id : null;
             longPoll(id);
         });
@@ -203,7 +203,7 @@ WebhookInboxViewer.controller("WebhookInboxCtrl", function ($scope, $window, $ro
     };
 
     $scope.history = function() {
-        var url = API_ENDPOINT + "i/" + webhookId + "/items/?order=-created&max=" + MAX_RESULTS + "&since=cursor:" + $scope.inbox.historyCursor;
+        var url = API_ENDPOINT + "/i/" + webhookId + "/items/?order=-created&max=" + MAX_RESULTS + "&since=cursor:" + $scope.inbox.historyCursor;
 
         // History get
         handlePastFetch(url);
