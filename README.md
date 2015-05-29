@@ -30,7 +30,7 @@ WebhookInbox is a Django application. Set it up with virtualenv like this:
 
 Create a .env file in the webhookinbox base directory, to hold environment variables:
 
-    API_BASE=http://api.localhost:8000
+    WHINBOX_API_BASE=http://api.localhost:8000
 
 Make an entry for "api.localhost" in /etc/hosts pointing to localhost, e.g.:
 
@@ -45,10 +45,10 @@ You should then be able to browse to http://localhost:8000/ and use the service,
 Realtime updates
 ----------------
 
-To enable realtime updates, install the [Pushpin](http://pushpin.org/) proxy server. By default, Pushpin listens on port 7999 for client requests, 5561 for control requests, and uses key "changeme". Add GRIP_URL to your .env file and also change the API_BASE:
+To enable realtime updates, install the [Pushpin](http://pushpin.org/) proxy server. By default, Pushpin listens on port 7999 for client requests, 5561 for control requests, and uses key "changeme". Add GRIP_URL to your .env file and also change WHINBOX_API_BASE:
 
     GRIP_URL=http://localhost:5561?key=changeme
-    API_BASE=http://api.localhost:7999
+    WHINBOX_API_BASE=http://api.localhost:7999
 
 Make sure the Pushpin routes file is configured to route to port 8000 and use Auto Cross-Origin. You should have a line in the routes file like this:
 
