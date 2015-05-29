@@ -18,8 +18,13 @@ vars = (
 	'REDIS_PORT',
 	'REDIS_DB',
 	'GRIP_URL',
-	'API_BASE',
-	'ORIG_HEADERS',
+	'WHINBOX_API_BASE',
+	'WHINBOX_REDIS_PREFIX',
+	'WHINBOX_GRIP_PREFIX',
+	'WHINBOX_ITEM_MAX',
+	'WHINBOX_ITEM_BURST_TIME',
+	'WHINBOX_ITEM_BURST_MAX',
+	'WHINBOX_ORIG_HEADERS',
 )
 
 from django.core.wsgi import get_wsgi_application

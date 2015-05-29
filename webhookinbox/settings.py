@@ -152,7 +152,6 @@ if 'REDIS_DB' in os.environ:
 from gripcontrol import parse_grip_uri
 
 GRIP_PROXY_REQUIRED = True
-GRIP_PREFIX = os.environ.get('GRIP_PREFIX', 'whinbox-')
 if 'GRIP_URL' in os.environ:
 	GRIP_PROXIES = [parse_grip_uri(os.environ['GRIP_URL'])]
 

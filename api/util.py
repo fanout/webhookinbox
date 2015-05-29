@@ -3,12 +3,14 @@ from gripcontrol import HttpResponseFormat
 from django_grip import publish
 import redis_ops
 
-db = redis_ops.RedisOps()
+def _setting(name, default):
+	v = getattr(settings, name, None)
+	if v is None:
+		return default
+	return v
 
-if getattr(settings, 'WHINBOX_GRIP_PREFIX', False):
-	grip_prefix = settings.WHINBOX_GRIP_PREFIX
-else:
-	grip_prefix = ''
+db = redis_ops.RedisOps()
+grip_prefix = _setting('WHINBOX_GRIP_PREFIX', 'wi-')
 
 def expire_inboxes():
 	return len(db.inbox_take_expired())

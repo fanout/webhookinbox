@@ -8,14 +8,15 @@ from gripcontrol import Channel, HttpResponseFormat, HttpStreamFormat
 from django_grip import set_hold_longpoll, set_hold_stream, publish
 import redis_ops
 
+def _setting(name, default):
+	v = getattr(settings, name, None)
+	if v is None:
+		return default
+	return v
+
 db = redis_ops.RedisOps()
-
-if getattr(settings, 'WHINBOX_GRIP_PREFIX', False):
-	grip_prefix = settings.WHINBOX_GRIP_PREFIX
-else:
-	grip_prefix = ''
-
-orig_headers = getattr(settings, 'WHINBOX_ORIG_HEADERS', False)
+grip_prefix = _setting('WHINBOX_GRIP_PREFIX', 'wi-')
+orig_headers = _setting('WHINBOX_ORIG_HEADERS', False)
 
 # useful list derived from requestbin
 ignore_headers = """
