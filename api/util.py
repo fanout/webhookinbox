@@ -1,4 +1,3 @@
-import time
 from django.conf import settings
 from gripcontrol import HttpResponseFormat
 from django_grip import publish
@@ -6,33 +5,10 @@ import redis_ops
 
 db = redis_ops.RedisOps()
 
-if hasattr(settings, 'REDIS_HOST'):
-	db.host = settings.REDIS_HOST
-
-if hasattr(settings, 'REDIS_PORT'):
-	db.port = settings.REDIS_PORT
-
-if hasattr(settings, 'REDIS_DB'):
-	db.db = settings.REDIS_DB
-
-if hasattr(settings, 'WHINBOX_REDIS_PREFIX'):
-	db.prefix = settings.WHINBOX_REDIS_PREFIX
-else:
-	db.prefix = 'wi-'
-
-if hasattr(settings, 'WHINBOX_GRIP_PREFIX'):
+if getattr(settings, 'WHINBOX_GRIP_PREFIX', False):
 	grip_prefix = settings.WHINBOX_GRIP_PREFIX
 else:
 	grip_prefix = ''
-
-if hasattr(settings, 'WHINBOX_ITEM_MAX'):
-	db.item_max = settings.WHINBOX_ITEM_MAX
-
-if hasattr(settings, 'WHINBOX_ITEM_BURST_TIME'):
-	db.item_burst_time = settings.WHINBOX_ITEM_BURST_TIME
-
-if hasattr(settings, 'WHINBOX_ITEM_BURST_MAX'):
-	db.item_burst_max = settings.WHINBOX_ITEM_BURST_MAX
 
 def expire_inboxes():
 	return len(db.inbox_take_expired())

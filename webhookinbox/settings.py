@@ -148,7 +148,6 @@ if 'REDIS_PORT' in os.environ:
 	REDIS_PORT = int(os.environ['REDIS_PORT'])
 if 'REDIS_DB' in os.environ:
 	REDIS_DB = int(os.environ['REDIS_DB'])
-REDIS_PREFIX = os.environ.get('REDIS_PREFIX', 'wi-')
 
 from gripcontrol import parse_grip_uri
 
@@ -158,6 +157,8 @@ if 'GRIP_URL' in os.environ:
 	GRIP_PROXIES = [parse_grip_uri(os.environ['GRIP_URL'])]
 
 WHINBOX_API_BASE = os.environ.get('WHINBOX_API_BASE')
+WHINBOX_REDIS_PREFIX = os.environ.get('WHINBOX_REDIS_PREFIX')
+WHINBOX_GRIP_PREFIX = os.environ.get('WHINBOX_GRIP_PREFIX')
 if 'WHINBOX_ITEM_MAX' in os.environ:
 	WHINBOX_ITEM_MAX = int(os.environ['WHINBOX_ITEM_MAX'])
 if 'WHINBOX_ITEM_BURST_TIME' in os.environ:

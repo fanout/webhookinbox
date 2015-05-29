@@ -5,6 +5,13 @@ import string
 import json
 import threading
 import redis
+from django.conf import settings
+
+def _setting(name, default):
+	v = getattr(settings, name, None)
+	if v is None:
+		return default
+	return v
 
 class InvalidId(Exception):
 	pass
@@ -17,13 +24,13 @@ class ObjectDoesNotExist(Exception):
 
 class RedisOps(object):
 	def __init__(self):
-		self.prefix = ''
-		self.host = 'localhost'
-		self.port = 6379
-		self.db = 0
-		self.item_max = 100
-		self.item_burst_time = 120
-		self.item_burst_max = 1200
+		self.host = _setting('REDIS_HOST', 'localhost')
+		self.port = _setting('REDIS_PORT', 6379)
+		self.db = _setting('REDIS_DB', 0)
+		self.prefix = _setting('WHINBOX_REDIS_PREFIX', 'wi-')
+		self.item_max = _setting('WHINBOX_ITEM_MAX', 100)
+		self.item_burst_time = _setting('WHINBOX_ITEM_BURST_TIME', 120)
+		self.item_burst_max = _setting('WHINBOX_ITEM_BURST_MAX', 1200)
 		self.lock = threading.Lock()
 		self.redis = None
 
