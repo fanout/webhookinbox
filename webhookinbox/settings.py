@@ -164,4 +164,4 @@ if 'WHINBOX_ITEM_BURST_TIME' in os.environ:
 	WHINBOX_ITEM_BURST_TIME = int(os.environ['WHINBOX_ITEM_BURST_TIME'])
 if 'WHINBOX_ITEM_BURST_MAX' in os.environ:
 	WHINBOX_ITEM_BURST_MAX = int(os.environ['WHINBOX_ITEM_BURST_MAX'])
-WHINBOX_ORIG_HEADERS = (os.environ.get('ORIG_HEADERS', '0') == '1')
+WHINBOX_ORIG_HEADERS = (os.environ.get('WHINBOX_ORIG_HEADERS', '0') == '1')
