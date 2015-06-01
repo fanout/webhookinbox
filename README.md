@@ -17,7 +17,7 @@ Requirements
 ------------
 
   * Redis
-  * Pushpin (or Fanout.io)
+  * Pushpin (optional, for realtime updates)
 
 Setup
 -----
