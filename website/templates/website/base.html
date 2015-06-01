@@ -1,0 +1,34 @@
+{% load staticfiles %}<!DOCTYPE html>
+<html>
+<head>
+    <title>WebhookInbox{% block title_suffix %}{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'images/favicon-48x48.png' %}" sizes="48x48" />
+    <link rel="icon" type="image/png" href="{% static 'images/favicon-32x32.png' %}" sizes="32x32" />
+    <link rel="icon" type="image/png" href="{% static 'images/favicon-16x16.png' %}" sizes="16x16" />
+    {% block page_css %}<link href="{% static 'styles/WebhookInbox.css' %}" rel="stylesheet" />{% endblock %}
+    <!--[if lte IE 8]>
+    <script src="{% static 'scripts/json2.js' %}"></script>
+    <![endif]-->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"></script>
+    <script src="{% static 'scripts/pollymer-1.1.1.js' %}"></script>
+    <script>
+        window.serverData = { apiEndpoint: "{{ api_base_uri }}", maxResults: 20{% if inbox_id %}, webhookId: "{{ inbox_id }}"{% endif %} };
+    </script>
+    <script src="{% static 'scripts/WebhookInboxViewer.js' %}"></script>
+    {% block head_extra %}
+    {% endblock %}
+</head>
+<body>
+
+{% block body_main %}{% endblock %}
+
+<div class="footer container fixed-height">
+    <div class="row">
+        <div class="message">
+            Inspired by <a href="http://requestb.in/">RequestBin</a>, &copy;2015 <a href="http://fanout.io/">Fanout, Inc</a>.
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

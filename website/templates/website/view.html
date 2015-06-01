@@ -1,21 +1,11 @@
-{% load staticfiles %}<!DOCTYPE html>
-<html>
-<head>
-    <title>WebhookInbox Viewer</title>
-    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
-    <link href="{% static 'styles/WebhookInboxViewer.css' %}" rel="stylesheet" />
-    <!--[if lte IE 8]>
-    <script src="{% static 'scripts/json2.js' %}"></script>
-    <![endif]-->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"></script>
-    <script src="{% static 'scripts/pollymer-1.1.1.js' %}"></script>
-    <script>
-        window.serverData = { apiEndpoint: "{{ api_base_uri }}", maxResults: 20, webhookId: "{{ inbox_id }}" };
-    </script>
-    <script src="{% static 'scripts/WebhookInboxViewer.js' %}"></script>
-</head>
-<body>
+{% extends 'website/base.html' %}
+{% load staticfiles %}
 
+{% block title_suffix %} Viewer{% endblock %}
+
+{% block page_css %}<link href="{% static 'styles/WebhookInboxViewer.css' %}" rel="stylesheet" />{% endblock %}
+
+{% block body_main %}
 <div class="wi-viewer">
 <div class="header container">
     <div class="row">
@@ -32,16 +22,4 @@
 
 <div ng-app="WebhookInboxViewer" ng-controller="WebhookInboxCtrl" ng-include="'{% static 'templates/view-template.html' %}'">
 </div>
-
-<div class="footer container">
-    <div class="row">
-        <div class="message">
-            Inspired by <a href="http://requestb.in/">RequestBin</a>, &copy;2015 <a href="http://fanout.io/">Fanout, Inc</a>.
-        </div>
-    </div>
-</div>
-
-</div>
-
-</body>
-</html>
+{% endblock %}
