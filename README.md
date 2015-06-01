@@ -28,33 +28,25 @@ WebhookInbox is a Django application. Set it up with virtualenv like this:
     source venv/bin/activate
     pip install -r requirements.txt
 
-Create a .env file in the webhookinbox base directory, to hold environment variables:
-
-    WHINBOX_API_BASE=http://api.localhost:8000
-
-Make an entry for "api.localhost" in /etc/hosts pointing to localhost, e.g.:
-
-    127.0.0.1 localhost api.localhost
-
 Run the server:
 
     python manage.py runserver
 
-You should then be able to browse to http://localhost:8000/ and use the service, without realtime updates.
+Browse to http://localhost:8000/ and enjoy!
 
 Realtime updates
 ----------------
 
-To enable realtime updates, install the [Pushpin](http://pushpin.org/) proxy server. By default, Pushpin listens on port 7999 for client requests, 5561 for control requests, and uses key "changeme". Add GRIP_URL to your .env file and also change WHINBOX_API_BASE:
+To enable realtime updates, install the [Pushpin](http://pushpin.org/) proxy server. By default, Pushpin listens on port 7999 for client requests, 5561 for control requests, and uses key "changeme".
+
+Create a .env file in the webhookinbox base directory, to hold environment variables. Add GRIP_URL and WHINBOX_API_BASE to this file:
 
     GRIP_URL=http://localhost:5561?key=changeme
-    WHINBOX_API_BASE=http://api.localhost:7999
+    WHINBOX_API_BASE=http://localhost:7999/api
 
 Make sure the Pushpin routes file is configured to route to port 8000 and use Auto Cross-Origin. You should have a line in the routes file like this:
 
     *,aco localhost:8000
-
-Now restart the server and browse to http://localhost:8000/
 
 Cleanup task
 ------------
@@ -63,6 +55,7 @@ WebhookInbox has a cleanup command that should be run once per minute, to prune 
 
 You can run the command at anytime like this:
 
+    source venv/bin/activate # if you haven't done this yet
     python manage.py cleanup
 
 Stick it in cron:
