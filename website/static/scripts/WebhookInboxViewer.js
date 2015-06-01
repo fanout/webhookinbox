@@ -55,7 +55,7 @@ WebhookInboxViewer.controller("HomeCtrl", function ($scope, $window, Pollymer) {
     $scope.webhookId = "";
     
     var openInbox = function(id) {
-        $window.location.href = "/view/" + id;
+        $window.location.href = "/view/" + id + "/";
     };
     
     $scope.create = function() {
