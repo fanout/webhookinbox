@@ -55,12 +55,10 @@ WebhookInbox has a cleanup command that should be run once per minute, to prune 
 
 You can run the command at anytime like this:
 
-    source venv/bin/activate # if you haven't done this yet
-    python manage.py cleanup
+    ./cleanup.sh
+
+The above command takes 50 seconds to execute, as it runs the cleanup process 6 times with a 10-second delay between each cleanup.
 
 Stick it in cron:
 
-    * * * * * cd /path/to/webhookinbox && source venv/bin/activate && python manage.py
-        cleanup >/dev/null 2>&1
-
-(lines wrapped for readability)
+    * * * * * cd /path/to/webhookinbox && ./cleanup.sh >/dev/null 2>&1
