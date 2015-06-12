@@ -393,12 +393,9 @@ def items(req, inbox_id):
 				out_items.append(_convert_item(i, not db.request_is_pending(inbox_id, i['id'])))
 			out['items'] = out_items
 
-			if len(items) == 0:
+			if len(out_items) == 0:
 				set_hold_longpoll(req, Channel(grip_prefix + 'inbox-%s' % inbox_id, last_id))
 
-			out = dict()
-			out['last_cursor'] = last_id
-			out['items'] = list()
 			return HttpResponse(json.dumps(out) + '\n', content_type='application/json')
 		else: # -created
 			try:
