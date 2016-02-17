@@ -20,7 +20,7 @@ from django.conf import settings
 
 if not settings.DEBUG:
 	from whitenoise.django import DjangoWhiteNoise
-	return DjangoWhiteNoise(get_wsgi_application())
+	application = DjangoWhiteNoise(get_wsgi_application())
 else:
 	from dj_static import Cling
-	return Cling(get_wsgi_application())
+	application = Cling(get_wsgi_application())
