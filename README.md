@@ -37,11 +37,11 @@ Browse to http://localhost:8000/ and enjoy!
 Realtime updates
 ----------------
 
-To enable realtime updates, install the [Pushpin](http://pushpin.org/) proxy server. By default, Pushpin listens on port 7999 for client requests, 5561 for control requests, and uses key "changeme".
+To enable realtime updates, install the [Pushpin](http://pushpin.org/) proxy server. By default, Pushpin listens on port 7999 for client requests and 5561 for control requests.
 
 Create a .env file in the webhookinbox base directory, to hold environment variables. Add GRIP_URL and WHINBOX_API_BASE to this file:
 
-    GRIP_URL=http://localhost:5561?key=changeme
+    GRIP_URL=http://localhost:5561
     WHINBOX_API_BASE=http://localhost:7999/api
 
 Make sure the Pushpin routes file is configured to route to port 8000 and use Auto Cross-Origin. You should have a line in the routes file like this:
