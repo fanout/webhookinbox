@@ -166,3 +166,5 @@ if 'WHINBOX_ITEM_BURST_TIME' in os.environ:
 if 'WHINBOX_ITEM_BURST_MAX' in os.environ:
 	WHINBOX_ITEM_BURST_MAX = int(os.environ['WHINBOX_ITEM_BURST_MAX'])
 WHINBOX_ORIG_HEADERS = (os.environ.get('WHINBOX_ORIG_HEADERS', '0') == '1')
+
+GA_ID = os.environ.get('GA_ID')
