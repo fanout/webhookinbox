@@ -28,5 +28,5 @@ def expire_requests():
 	headers['Content-Type'] = 'text/html'
 	body = 'Service Unavailable\n'
 	for r in reqs:
-		publish(grip_prefix + 'wait-%s-%s' % (r[0], r[1]), HttpResponseFormat(code=503, headers=headers, body=body))
+		publish(grip_prefix + 'wait-%s-%s' % (r[0], r[1]), HttpResponseFormat(code=503, headers=headers, body=body), id='1', prev_id='0')
 	return len(reqs)
