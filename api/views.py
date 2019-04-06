@@ -260,13 +260,19 @@ def respond(req, inbox_id, item_id):
 		except:
 			return HttpResponse('Service Unavailable\n', status=503)
 
-		publish(grip_prefix + 'wait-%s-%s' % (inbox_id, item_id), HttpResponseFormat(code=code, reason=reason, headers=headers, body=body))
+		publish(grip_prefix + 'wait-%s-%s' % (inbox_id, item_id), HttpResponseFormat(code=code, reason=reason, headers=headers, body=body), id='1', prev_id='0')
 
 		return HttpResponse('Ok\n')
 	else:
 		return HttpResponseNotAllowed(['POST'])
 
 def hit(req, inbox_id):
+	if len(req.grip.last) > 0:
+		for channel, last_id in req.grip.last.iteritems():
+			break
+		set_hold_longpoll(req, Channel(channel, last_id))
+		return HttpResponse('Service Unavailable\n', status=503, content_type='text/html')
+
 	try:
 		inbox = db.inbox_get(inbox_id)
 	except redis_ops.InvalidId:
@@ -330,7 +336,7 @@ def hit(req, inbox_id):
 	else:
 		# wait for the user to respond
 		db.request_add_pending(inbox_id, item_id)
-		set_hold_longpoll(req, grip_prefix + 'wait-%s-%s' % (inbox_id, item_id))
+		set_hold_longpoll(req, Channel(grip_prefix + 'wait-%s-%s' % (inbox_id, item_id), '0'))
 		return HttpResponse('Service Unavailable\n', status=503, content_type='text/html')
 
 def items(req, inbox_id):
