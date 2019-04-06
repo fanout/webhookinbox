@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-#from django.test import TestCase
+#from django.contrib import admin
 
-# Create your tests here.
+# Register your models here.

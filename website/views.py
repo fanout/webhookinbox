@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from django.conf import settings
 from django.template import RequestContext
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 
 def _page(request, name, inbox_id=None):
 	if settings.WHINBOX_API_BASE:
@@ -19,7 +22,7 @@ def _page(request, name, inbox_id=None):
 	if ga_id:
 		context['ga_id'] = ga_id
 
-	return render_to_response('website/%s.html' % name, context, context_instance=RequestContext(request))
+	return render(request, 'website/%s.html' % name, context)
 
 def home(request):
 	return _page(request, 'home')
