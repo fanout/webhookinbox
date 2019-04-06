@@ -34,6 +34,8 @@ X-Forwarded-Proto
 X-Via
 X-Forwarded-Port
 Grip-Sig
+Grip-Feature
+Grip-Last
 """.split("\n")[1:-1]
 
 def _ignore_header(name):
