@@ -9,7 +9,7 @@ django-dotenv==1.4.1
 django-grip==2.0.1
 django-hosts==3.0
 docutils==0.14
-gripcontrol==3.3.0
+gripcontrol==3.3.1
 gunicorn==19.9.0
 idna==2.8
 imagesize==1.1.0
