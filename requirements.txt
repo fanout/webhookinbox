@@ -4,7 +4,7 @@ certifi==2019.3.9
 chardet==3.0.4
 dj-database-url==0.3.0
 dj-static==0.0.6
-Django==1.11.23
+Django==1.11.29
 django-dotenv==1.4.1
 django-grip==2.0.1
 django-hosts==3.0
