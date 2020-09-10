@@ -2,7 +2,6 @@ WebhookInbox
 ============
 
 Authors: Justin Karneges <justin@fanout.io>, Katsuyuki Ohmuro <harmony7@pex2.jp>  
-Mailing List: http://lists.fanout.io/mailman/listinfo/fanout-users
 
 WebhookInbox is a web service and website that receives HTTP requests from external sources and stores the data of those requests for later retrieval. Each inbox is represented by a generated URL, which can be passed to other applications for use. If you're developing a service that makes HTTP callbacks, WebhookInbox can be used as a convenient way to examine what you're sending. Incoming request data is displayed on the WebhookInbox website in realtime as it happens. There is also a REST API available, meaning WebhookInbox can be used programmatically, for example by a browser app wishing to receive HTTP callbacks.
 
