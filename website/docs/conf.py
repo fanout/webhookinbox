@@ -38,7 +38,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'WebhookInbox'
-copyright = u'2020 Fanout, Inc'
+copyright = u'2021 Fanout, Inc'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
