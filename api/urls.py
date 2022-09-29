@@ -1,13 +1,13 @@
-from django.conf.urls import url
+from django.urls import re_path
 from . import views
 
 urlpatterns = [
-	url(r'^$', views.root, name='root'),
-	url(r'^create/$', views.create, name='create'),
-	url(r'^i/(?P<inbox_id>[^/]+)/$', views.inbox, name='inbox'),
-	url(r'^i/(?P<inbox_id>[^/]+)/refresh/$', views.refresh, name='refresh'),
-	url(r'^i/(?P<inbox_id>[^/]+)/respond/(?P<item_id>[^/]+)/$', views.respond, name='respond'),
-	url(r'^i/(?P<inbox_id>[^/]+)/in/', views.hit, name='hit'),
-	url(r'^i/(?P<inbox_id>[^/]+)/items/$', views.items, name='items'),
-	url(r'^i/(?P<inbox_id>[^/]+)/stream/$', views.stream, name='stream')
+	re_path(r'^$', views.root, name='root'),
+	re_path(r'^create/$', views.create, name='create'),
+	re_path(r'^i/(?P<inbox_id>[^/]+)/$', views.inbox, name='inbox'),
+	re_path(r'^i/(?P<inbox_id>[^/]+)/refresh/$', views.refresh, name='refresh'),
+	re_path(r'^i/(?P<inbox_id>[^/]+)/respond/(?P<item_id>[^/]+)/$', views.respond, name='respond'),
+	re_path(r'^i/(?P<inbox_id>[^/]+)/in/', views.hit, name='hit'),
+	re_path(r'^i/(?P<inbox_id>[^/]+)/items/$', views.items, name='items'),
+	re_path(r'^i/(?P<inbox_id>[^/]+)/stream/$', views.stream, name='stream')
 ]

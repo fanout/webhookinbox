@@ -1,7 +1,7 @@
 from django.conf import settings
 from gripcontrol import HttpResponseFormat
 from django_grip import publish
-import redis_ops
+from . import redis_ops
 
 def _setting(name, default):
 	v = getattr(settings, name, None)

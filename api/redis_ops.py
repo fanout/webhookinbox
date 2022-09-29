@@ -43,12 +43,12 @@ class RedisOps(object):
 
 	@staticmethod
 	def _gen_id():
-		return ''.join(random.choice(string.letters + string.digits) for n in xrange(8))
+		return ''.join(random.choice(string.ascii_letters + string.digits) for n in range(8))
 
 	@staticmethod
 	def _validate_id(id):
 		for c in id:
-			if c not in string.letters and c not in string.digits and c not in '_-@':
+			if c not in string.ascii_letters and c not in string.digits and c not in '_-@':
 				raise InvalidId('id contains invalid character: %s' % c)
 
 	@staticmethod

@@ -1,6 +1,6 @@
-from django.conf.urls import include, url
+from django.urls import include, re_path
 
 urlpatterns = [
-	url(r'', include('website.urls')),
-	url(r'^api/', include('api.urls'))
+	re_path(r'', include('website.urls')),
+	re_path(r'^api/', include('api.urls'))
 ]
