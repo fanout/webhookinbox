@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webhookinbox
+spec:
+  selector:
+    matchLabels:
+      app: webhookinbox
+  template:
+    metadata:
+      labels:
+        app: webhookinbox
+    spec:
+      volumes:
+        - name: routes-config
+          configMap:
+            name: routes-config
+        - name: env-config
+          configMap:
+            name: env-config
+      containers:
+      - name: webhookinbox
+        image: zimbres/webhookinbox
+        ports:
+        - containerPort: 7999
+        env:
+          - name: TZ
+            value: America/Sao_Paulo
+        volumeMounts:
+          - name: routes-config
+            mountPath: "/etc/pushpin/routes"
+            subPath: routes
+          - name: env-config
+            mountPath: "/app/.env"
+            subPath: .env
