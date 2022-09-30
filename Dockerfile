@@ -1,4 +1,6 @@
-FROM python:3.10
+FROM ubuntu:focal
+
+ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt update
 RUN apt install -y supervisor apt-transport-https software-properties-common gnupg python3-pip
