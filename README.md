@@ -61,3 +61,12 @@ The above command takes 50 seconds to execute, as it runs the cleanup process 6 
 Stick it in cron:
 
     * * * * * cd /path/to/webhookinbox && ./cleanup.sh >/dev/null 2>&1
+
+Docker
+------
+
+This command will bring up an App container with Pushpin embedded and a Redis container.
+
+Browse to http://localhost:7999 to use application.
+
+    docker-compode up -d
