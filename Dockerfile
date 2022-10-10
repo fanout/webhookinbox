@@ -1,5 +1,5 @@
-FROM ubuntu:focal
-
+FROM --platform=$TARGETPLATFORM ubuntu:focal
+ARG TARGETPLATFORM
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt update
@@ -18,8 +18,8 @@ RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 COPY ./ /app
 
 WORKDIR /
-COPY pushpin.conf /etc/pushpin
-COPY internal.conf /usr/lib/pushpin
+COPY $TARGETPLATFORM/internal.conf /usr/lib/pushpin
+COPY $TARGETPLATFORM/pushpin.conf /etc/pushpin
 COPY routes /etc/pushpin
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
