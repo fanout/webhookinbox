@@ -399,7 +399,6 @@ def items(req, inbox_id):
 			out['last_cursor'] = last_id
 			out_items = list()
 			for i in items:
-				print('4')
 				out_items.append(_convert_item(i, not db.request_is_pending(inbox_id, i['id'])))
 			out['items'] = out_items
 
@@ -422,7 +421,6 @@ def items(req, inbox_id):
 				out['last_cursor'] = last_id
 			out_items = list()
 			for i in items:
-				print('5')
 				out_items.append(_convert_item(i, not db.request_is_pending(inbox_id, i['id'])))
 			out['items'] = out_items
 			return HttpResponse(json.dumps(out) + '\n', content_type='application/json')
