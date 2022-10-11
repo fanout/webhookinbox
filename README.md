@@ -65,8 +65,9 @@ Stick it in cron:
 Docker
 ------
 
-This command will bring up an App container with Pushpin embedded and a Redis container.
+These commands will bring up an App container, a Pushpin container and the Redis container.
 
 Browse to http://localhost:7999 to use application.
 
+    docker-compose build --build-arg TARGETPLATFORM=linux/amd64
     docker-compode up -d
