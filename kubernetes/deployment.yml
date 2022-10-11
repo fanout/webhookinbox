@@ -19,8 +19,31 @@ spec:
           configMap:
             name: env-config
       containers:
-      - name: webhookinbox
+      - name: app
         image: zimbres/webhookinbox
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "0.1"
+          limits:
+            memory: "500Mi"
+            cpu: "0.5"
+        env:
+          - name: TZ
+            value: America/Sao_Paulo
+        volumeMounts:
+          - name: env-config
+            mountPath: "/app/.env"
+            subPath: .env
+      - name: pushpin
+        image: zimbres/pushpin
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "0.1"
+          limits:
+            memory: "500Mi"
+            cpu: "0.5"
         ports:
         - containerPort: 7999
         env:
@@ -30,6 +53,3 @@ spec:
           - name: routes-config
             mountPath: "/etc/pushpin/routes"
             subPath: routes
-          - name: env-config
-            mountPath: "/app/.env"
-            subPath: .env
