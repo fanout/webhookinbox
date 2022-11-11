@@ -14,7 +14,7 @@ services:
       - "pushpin"
       - "redis"
     volumes:
-      - ./.env:/app/.env
+      - ./env.example:/app/.env
   pushpin:
     container_name: pushpin
     build:
