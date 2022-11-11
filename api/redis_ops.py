@@ -37,18 +37,18 @@ class RedisOps(object):
 	def _get_redis(self):
 		self.lock.acquire()
 		if not self.redis:
-			self.redis = redis.Redis(host=self.host, port=self.port, db=self.db)
+			self.redis = redis.Redis(host=self.host, port=self.port, db=self.db, decode_responses=True)
 		self.lock.release()
 		return self.redis
 
 	@staticmethod
 	def _gen_id():
-		return ''.join(random.choice(string.letters + string.digits) for n in xrange(8))
+		return ''.join(random.choice(string.ascii_letters + string.digits) for n in range(8))
 
 	@staticmethod
 	def _validate_id(id):
 		for c in id:
-			if c not in string.letters and c not in string.digits and c not in '_-@':
+			if c not in string.ascii_letters and c not in string.digits and c not in '_-@':
 				raise InvalidId('id contains invalid character: %s' % c)
 
 	@staticmethod
@@ -88,7 +88,7 @@ class RedisOps(object):
 					pipe.multi()
 					pipe.set(key, json.dumps(val))
 					pipe.sadd(set_key, try_id)
-					pipe.zadd(exp_key, try_id, exp_time)
+					pipe.zadd(exp_key, {try_id: exp_time})
 					pipe.execute()
 					return try_id
 				except redis.WatchError:
@@ -149,7 +149,7 @@ class RedisOps(object):
 					exp_time = now + val['ttl']
 					pipe.multi()
 					pipe.set(key, json.dumps(val))
-					pipe.zadd(exp_key, id, exp_time)
+					pipe.zadd(exp_key, {id: exp_time})
 					pipe.execute()
 					break
 				except redis.WatchError:
@@ -442,7 +442,7 @@ class RedisOps(object):
 					exp_time = now + 20
 					pipe.multi()
 					pipe.set(req_key, json.dumps([inbox_id, item_id]))
-					pipe.zadd(req_exp_key, req_id, exp_time)
+					pipe.zadd(req_exp_key, {req_id: exp_time})
 					pipe.execute()
 					break
 				except redis.WatchError:

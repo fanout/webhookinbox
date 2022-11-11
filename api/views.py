@@ -9,7 +9,7 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseNotAllowed
 from gripcontrol import Channel, HttpResponseFormat, HttpStreamFormat
 from django_grip import set_hold_longpoll, set_hold_stream, publish
-import redis_ops
+from . import redis_ops
 
 def _setting(name, default):
 	v = getattr(settings, name, None)
@@ -73,7 +73,7 @@ def _req_to_item(req):
 	content_type = req.META.get('CONTENT_TYPE')
 	if content_type:
 		raw_headers.append(('CONTENT_TYPE', content_type))
-	for k, v in req.META.iteritems():
+	for k, v in req.META.items():
 		if k.startswith('HTTP_'):
 			raw_headers.append((k[5:], v))
 	# undjangoify the header names
@@ -130,7 +130,6 @@ def create(req):
 		host = req.META.get('HTTP_HOST')
 		if not host:
 			return HttpResponseBadRequest('Bad Request: No \'Host\' header\n')
-
 		inbox_id = req.POST.get('id')
 		if inbox_id is not None and len(inbox_id) > 64:
 			return HttpResponseBadRequest('Bad Request: Id length must not exceed 64\n')
@@ -140,7 +139,6 @@ def create(req):
 			ttl = int(ttl)
 		if ttl is None:
 			ttl = 3600
-
 		response_mode = req.POST.get('response_mode')
 		if not response_mode:
 			response_mode = 'auto'
@@ -268,7 +266,7 @@ def respond(req, inbox_id, item_id):
 
 def hit(req, inbox_id):
 	if len(req.grip.last) > 0:
-		for channel, last_id in req.grip.last.iteritems():
+		for channel, last_id in req.grip.last.items():
 			break
 		set_hold_longpoll(req, Channel(channel, last_id))
 		return HttpResponse('Service Unavailable\n', status=503, content_type='text/html')

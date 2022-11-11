@@ -19,7 +19,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 from django.conf import settings
 
 if not settings.DEBUG:
-	from whitenoise.django import DjangoWhiteNoise
+	from whitenoise import DjangoWhiteNoise
 	application = DjangoWhiteNoise(get_wsgi_application())
 else:
 	from dj_static import Cling

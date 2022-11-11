@@ -1,9 +1,9 @@
-from django.conf.urls import url
+from django.urls import re_path
 from . import views
 
 urlpatterns = [
-	url(r'^$', views.home, name='home'),
-	url(r'^view/(?P<inbox_id>[^/]+)/$', views.view, name='view'),
-	url(r'^about/$', views.about, name='about'),
-	url(r'^contact/$', views.contact, name='contact')
+	re_path(r'^$', views.home, name='home'),
+	re_path(r'^view/(?P<inbox_id>[^/]+)/$', views.view, name='view'),
+	re_path(r'^about/$', views.about, name='about'),
+	re_path(r'^contact/$', views.contact, name='contact')
 ]
