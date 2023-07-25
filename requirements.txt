@@ -2,7 +2,7 @@ alabaster==0.7.12
 asgiref==3.5.2
 async-timeout==4.0.2
 Babel==2.10.3
-certifi==2022.9.24
+certifi==2023.7.22
 charset-normalizer==2.1.1
 Deprecated==1.2.13
 dj-static==0.0.6
