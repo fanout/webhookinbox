@@ -4,7 +4,7 @@ ARG TARGETPLATFORM
 RUN apt update
 RUN apt install -y apt-transport-https software-properties-common gnupg
 RUN echo deb https://fanout.jfrog.io/artifactory/debian fanout-focal main | tee /etc/apt/sources.list.d/fanout.list
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EA01C1E777F95324
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 7D0343148157C3DF
 RUN apt update
 
 RUN apt install -y pushpin
