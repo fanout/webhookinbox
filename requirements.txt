@@ -36,6 +36,6 @@ sphinxcontrib-serializinghtml==1.1.5
 sqlparse==0.4.3
 static3==0.7.0
 urllib3==1.26.12
-Werkzeug==2.2.2
+Werkzeug==2.2.3
 whitenoise==6.2.0
 wrapt==1.14.1
