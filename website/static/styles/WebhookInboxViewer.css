@@ -240,6 +240,7 @@ a img {
 .entry-item .value {
     font-size: 13px;
     color: #46484c;
+    overflow-wrap: anywhere;
 }
 
 .headers-label {
