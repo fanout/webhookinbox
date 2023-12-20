@@ -85,7 +85,10 @@ def _req_to_item(req):
 		tmp = list()
 		for h in headers:
 			if h[0].lower().startswith('eb9bf0f5-'):
-				tmp.append((h[0][9:], h[1]))
+				name = h[0][9:]
+				value = h[1]
+				if name.lower() not in ['x-forwarded-proto']:
+					tmp.append((name, value))
 		headers = tmp
 	else:
 		# otherwise, use the blacklist to clean things up
