@@ -177,6 +177,7 @@ GRIP_URL = os.environ.get('GRIP_URL')
 WHINBOX_API_BASE = os.environ.get('WHINBOX_API_BASE')
 WHINBOX_REDIS_PREFIX = os.environ.get('WHINBOX_REDIS_PREFIX')
 WHINBOX_GRIP_PREFIX = os.environ.get('WHINBOX_GRIP_PREFIX')
+WHINBOX_PUBLISH_BLOCKING = (os.environ.get('WHINBOX_PUBLISH_BLOCKING') == '1')
 if 'WHINBOX_ITEM_MAX' in os.environ:
     WHINBOX_ITEM_MAX = int(os.environ['WHINBOX_ITEM_MAX'])
 if 'WHINBOX_ITEM_BURST_TIME' in os.environ:

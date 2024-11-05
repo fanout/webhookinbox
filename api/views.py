@@ -201,7 +201,7 @@ def inbox(req, inbox_id):
 			return HttpResponse('Service Unavailable\n', status=503)
 
 		# we'll push a 404 to any long polls because we're that cool
-		publish(grip_prefix + 'inbox-%s' % inbox_id, HttpResponseFormat(code=404, headers={'Content-Type': 'text/html'}, body='Not Found\n'))
+		publish(grip_prefix + 'inbox-%s' % inbox_id, HttpResponseFormat(code=404, headers={'Content-Type': 'text/html'}, body='Not Found\n'), blocking=settings.WHINBOX_PUBLISH_BLOCKING)
 
 		return HttpResponse('Deleted\n')
 	else:
@@ -261,7 +261,7 @@ def respond(req, inbox_id, item_id):
 		except:
 			return HttpResponse('Service Unavailable\n', status=503)
 
-		publish(grip_prefix + 'wait-%s-%s' % (inbox_id, item_id), HttpResponseFormat(code=code, reason=reason, headers=headers, body=body), id='1', prev_id='0')
+		publish(grip_prefix + 'wait-%s-%s' % (inbox_id, item_id), HttpResponseFormat(code=code, reason=reason, headers=headers, body=body), id='1', prev_id='0', blocking=settings.WHINBOX_PUBLISH_BLOCKING)
 
 		return HttpResponse('Ok\n')
 	else:
@@ -327,7 +327,7 @@ def hit(req, inbox_id):
 	formats = list()
 	formats.append(HttpResponseFormat(headers=hr_headers, body=hr_body))
 	formats.append(HttpStreamFormat(hs_body))
-	publish(grip_prefix + 'inbox-%s' % inbox_id, formats, id=item_id, prev_id=prev_id)
+	publish(grip_prefix + 'inbox-%s' % inbox_id, formats, id=item_id, prev_id=prev_id, blocking=WHINBOX_PUBLISH_BLOCKING)
 
 	if respond_now:
 		if hub_challenge:
