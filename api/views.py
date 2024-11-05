@@ -327,7 +327,7 @@ def hit(req, inbox_id):
 	formats = list()
 	formats.append(HttpResponseFormat(headers=hr_headers, body=hr_body))
 	formats.append(HttpStreamFormat(hs_body))
-	publish(grip_prefix + 'inbox-%s' % inbox_id, formats, id=item_id, prev_id=prev_id, blocking=WHINBOX_PUBLISH_BLOCKING)
+	publish(grip_prefix + 'inbox-%s' % inbox_id, formats, id=item_id, prev_id=prev_id, blocking=settings.WHINBOX_PUBLISH_BLOCKING)
 
 	if respond_now:
 		if hub_challenge:
