@@ -140,7 +140,10 @@ def create(req):
 
 		ttl = req.POST.get('ttl')
 		if ttl is not None:
-			ttl = int(ttl)
+			try:
+				ttl = int(ttl)
+			except (TypeError, ValueError):
+				return HttpResponseBadRequest('Bad Request: Invalid ttl value\n')
 		if ttl is None:
 			ttl = 3600
 		response_mode = req.POST.get('response_mode')
@@ -216,7 +219,10 @@ def refresh(req, inbox_id):
 	if req.method == 'POST':
 		ttl = req.POST.get('ttl')
 		if ttl is not None:
-			ttl = int(ttl)
+			try:
+				ttl = int(ttl)
+			except (TypeError, ValueError):
+				return HttpResponseBadRequest('Bad Request: Invalid ttl value\n')
 
 		try:
 			db.inbox_refresh(inbox_id, ttl)
